@@ -52,6 +52,10 @@ public class Port {
     public void addShip(Ship ship){
         ships.add(ship);
     }
+    public void removeShip(Ship ship){
+        ships.remove(ship);
+    }
+
 
 
 
