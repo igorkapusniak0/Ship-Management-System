@@ -2,6 +2,7 @@ package utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Utilities {
 
@@ -82,4 +83,33 @@ public class Utilities {
     public static boolean isValidIndex(List list, int indexToCheck){
         return ((indexToCheck >= 0) && (indexToCheck < list.size()));
     }
+
+    public static String uniqueCodeGenerator() {
+        String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String numbers = "0123456789";
+        StringBuilder code = new StringBuilder();
+        Random random = new Random();
+
+        for (int i = 0; i < 3; i++) {
+            int randomUpper = random.nextInt(upper.length());
+            char randomChar = upper.charAt(randomUpper);
+            code.append(randomChar);
+        }
+
+        for (int i = 0; i < 3; i++) {
+            int randomNumber = random.nextInt(numbers.length());
+            char randomChar = numbers.charAt(randomNumber);
+            code.append(randomChar);
+        }
+
+        for (int i = 0; i < 3; i++) {
+            int randomUpper = random.nextInt(upper.length());
+            char randomChar = upper.charAt(randomUpper);
+            code.append(randomChar);
+        }
+
+        return code.toString();
+    }
+
+
 }

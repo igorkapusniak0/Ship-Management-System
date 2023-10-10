@@ -19,4 +19,7 @@ public class List<T> {
             current.next = newNode;
         }
     }
+
+    public void remove(T container) {
+    }
 }
