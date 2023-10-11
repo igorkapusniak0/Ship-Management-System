@@ -8,8 +8,15 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 import models.Container;
 import models.Ship;
+import models.Port;
+import utils.Utilities;
+
+import java.util.Collection;
 
 public class PortScene extends Application {
+    private Port port;
+    private Ship ships;
+    private Container containersInPort;
 
     Stage window;
 
@@ -24,56 +31,57 @@ public class PortScene extends Application {
         BorderPane borderPane = new BorderPane();
 
         TextField nameField = new TextField();
-        TextField codeField = new TextField();
-        ComboBox<Ship> shipField = new ComboBox<>();
+        TextField countryField = new TextField();
+        /*ComboBox<Ship> shipField = new ComboBox<>();
         ComboBox<Container> contField = new ComboBox<>();
 
-        /*Ship ships =
-        contField.getItems().addAll(ships);*/
+
+        contField.getItems().addAll();*/
 
 
         nameField.setMaxWidth(300);
-        codeField.setMaxWidth(300);
-        contField.setMaxWidth(300);
+        countryField.setMaxWidth(300);
+        /*contField.setMaxWidth(300);
         shipField.setMaxWidth(300);
-        shipField.setMinHeight(300);
+        shipField.setMinHeight(300);*/
         Label portLabel = new Label("Port Name");
-        Label codeLabel = new Label("Port Code");
+        Label countryLabel = new Label("Country");
         Label shipsLabel = new Label("Ships");
         Label contLabel = new Label("Containers");
-        nameField.setPromptText("Enter your name:");
-        codeField.setPromptText("Enter your age:");
-        contField.setPromptText("Enter appointment time:");
-        shipField.setPromptText("Enter your issue:");
+        nameField.setPromptText("Enter Port Name:");
+        countryField.setPromptText("Enter Country:");
+        //contField.setPromptText("Enter appointment time:");
+        //shipField.setPromptText("Enter your issue:");
 
-        TableView<Appointment> tableView = new TableView<>();
+        TableView<Port> tableView = new TableView<>();
 
-        TableColumn<Appointment, String> timeColumn = new TableColumn<>("Time");
-        TableColumn<Appointment, String> nameColumn = new TableColumn<>("Name");
-        TableColumn<Appointment, String> ageColumn = new TableColumn<>("Age");
-        TableColumn<Appointment, String> descriptionColumn = new TableColumn<>("Issue");
+        TableColumn<Port, String> codeColumn = new TableColumn<>("Port Code");
+        TableColumn<Port, String> nameColumn = new TableColumn<>("Port Name");
+        TableColumn<Port, String> countryColumn = new TableColumn<>("Port Country");
+        TableColumn<Port, String> shipColumn = new TableColumn<>("Ships in Port");
+        TableColumn<Port, String> containerColumn = new TableColumn<>("Containers in Port");
 
-        timeColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        ageColumn.setCellValueFactory(new PropertyValueFactory<>("age"));
-        descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-        descriptionColumn.setMinWidth(1000);
-        tableView.getColumns().addAll(timeColumn, nameColumn, ageColumn,descriptionColumn);
+        codeColumn.setCellValueFactory(new PropertyValueFactory<>("portCode"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("portName"));
+        countryColumn.setCellValueFactory(new PropertyValueFactory<>("portCountry"));
+        shipColumn.setCellValueFactory(new PropertyValueFactory<>(null));
+        containerColumn.setCellValueFactory(new PropertyValueFactory<>(null));
+        containerColumn.setMinWidth(1000);
+        tableView.getColumns().addAll(codeColumn, nameColumn, countryColumn,shipColumn,containerColumn);
         tableView.setEditable(true);
         tableView.setMinWidth(1000);
 
         Button saveButton = new Button("Save");
 
         saveButton.setOnAction(event -> {
-            String time = contField.getValue();
             String name = nameField.getText();
-            int age = Integer.parseInt(codeField.getText());
-            String description = shipField.getText();
-            tableView.getItems().add(new Appointment(time, name, age, description));
+            String country = countryField.getText();
+            String code = Utilities.uniqueCodeGenerator();
+            tableView.getItems().add(new Port(name, country,code));
         });
 
         VBox vBox = new VBox(10);
-        vBox.getChildren().addAll(portLabel, nameField, shipsLabel, codeField, codeLabel, contField, contLabel, shipField, saveButton);
+        vBox.getChildren().addAll(portLabel, nameField, countryLabel, countryField, saveButton);
 
         HBox hBox = new HBox(100);
         hBox.getChildren().addAll(vBox, tableView);
@@ -86,33 +94,4 @@ public class PortScene extends Application {
         window.show();
     }
 
-    public static class Appointment {
-        private String name = "";
-        private String description = "";
-        private int age = 0;
-        private String time = "";
-
-        public Appointment(String time, String name, int age, String description) {
-            this.time = time;
-            this.name = name;
-            this.description = description;
-            this.age = age;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getTime() {
-            return time;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public int getAge() {
-            return age;
-        }
-    }
 }

@@ -20,10 +20,9 @@ public class MainScene extends Application {
     public static void main(String[] args) {
         launch();
     }
-
     @Override
-    public void start(Stage main) throws FileNotFoundException {
-        window = main;
+    public void start(Stage primaryStage) throws FileNotFoundException {
+        window = primaryStage;
         window.setTitle("CA1");
 
         FileInputStream inp = new FileInputStream("/home/igor/IdeaProjects/CA1/src/main/Images/download.jpeg");
@@ -44,13 +43,16 @@ public class MainScene extends Application {
         proceed.setTextFill(Color.web("#ffffff"));
         Button button = new Button("Proceed");
         button.setFont(new Font("Arial",30));
-        button.setOnAction(event -> System.out.println("hello"));
+        button.setOnAction(event -> System.out.println("helo"));
 
         hBox.getChildren().addAll(welcome,proceed,button);
         Scene scene = new Scene(hBox,1500,800);
         window.setScene(scene);
         window.show();
 
+
+
     }
+
 
 }

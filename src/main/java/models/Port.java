@@ -1,18 +1,19 @@
 package models;
-import LinkedList.*;
 import utils.*;
 
 
 
 public class Port {
-    private String portName;
-    private String portCode;
-    private String country;
-    private List<Container> containersInPort;
-    private List<Ship> ships;
+    public String portName;
+    public String portCode;
+    public String portCountry;
+    //public List<Container> containersInPort;
+    //public List<Ship> ships;
 
-    public Port(String portName, String portCode, String country){
+    public Port(String portName,String country, String portCode){
         setPortName(portName);
+        setPortCountry(country);
+        setPortCode();
     }
 
     public void setPortName(String portName){
@@ -24,25 +25,25 @@ public class Port {
         return portName;
     }
 
-    public void setCountry(String country){
-        if (Utilities.validStringlength(country,15)){
-            this.country = country;
+    public void setPortCountry(String portCountry){
+        if (Utilities.validStringlength(portCountry,15)){
+            this.portCountry = portCountry;
         }
     }
 
-    public String getCountry(){
-        return country;
+    public String getPortCountry(){
+        return portCountry;
     }
-    public void setPortCode(String portCode){
+    public void setPortCode(){
         String code = Utilities.uniqueCodeGenerator();
-        this.portCode = Utilities.truncateString(country,3)+"-"+code;
+        this.portCode = Utilities.truncateString(portCountry,3)+"-"+code;
 
     }
     public String getPortCode(){
         return portCode;
     }
 
-    public void addContainer(Container container){
+    /*public void addContainer(Container container){
         containersInPort.add(container);
     }
     public void removeContainer(Container container){
@@ -54,7 +55,7 @@ public class Port {
     }
     public void removeShip(Ship ship){
         ships.remove(ship);
-    }
+    }*/
 
 
 
