@@ -6,8 +6,11 @@ import utils.Utilities;
 public class Container {
     private String contCode = "";
     private int contSize = 0;
-    //private Pallet pallet;
-    public Container(String contCode, int contSize){
+    private Pallet pallet;
+    public Container(String contCode, int contSize,Pallet pallet){
+        setContCode();
+        setContSize(contSize);
+
 
     }
     public void setContCode(){

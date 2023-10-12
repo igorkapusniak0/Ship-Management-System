@@ -1,5 +1,6 @@
 package models;
 import utils.*;
+import LinkedList.List;
 
 
 
@@ -7,8 +8,8 @@ public class Port {
     public String portName;
     public String portCode;
     public String portCountry;
-    //public List<Container> containersInPort;
-    //public List<Ship> ships;
+    public List<Container> containersInPort;
+    public List<Ship> ships;
 
     public Port(String portName,String country, String portCode){
         setPortName(portName);
