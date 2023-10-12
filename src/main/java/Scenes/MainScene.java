@@ -16,7 +16,6 @@ import java.io.FileNotFoundException;
 
 public class MainScene extends Application {
     Stage window;
-
     public static void main(String[] args) {
         launch();
     }

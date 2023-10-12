@@ -20,7 +20,7 @@ public class Utilities {
      * @return the number, passed as a parameter, truncated to two decimal places (note: not rounded)
      */
     public static double toTwoDecimalPlaces(double number) {
-        return (int) (number * 100) / 100.0;
+        return (double) ((number * 100) / 100.0);
     }
 
     /**
@@ -56,7 +56,7 @@ public class Utilities {
         return ((numberToCheck >= min) && (numberToCheck <= max));
     }
 
-    public static boolean validRange(float numbertoCheck, float min, float max, float delta) {
+    public static boolean validRange(double numbertoCheck, double min, double max, double delta) {
         return ((numbertoCheck >= (min-delta)) && (numbertoCheck <= (max+delta)));
 
     }

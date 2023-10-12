@@ -35,9 +35,7 @@ public class Port {
         return portCountry;
     }
     public void setPortCode(){
-        String code = Utilities.uniqueCodeGenerator();
-        this.portCode = Utilities.truncateString(portCountry,3)+"-"+code;
-
+        this.portCode= Utilities.truncateString(portCountry,3)+"-"+Utilities.uniqueCodeGenerator();
     }
     public String getPortCode(){
         return portCode;
