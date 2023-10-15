@@ -42,7 +42,7 @@ public class Port {
         return portCode;
     }
 
-    /*public void addContainer(Container container){
+    public void addContainer(Container container){
         containersInPort.add(container);
     }
     public void removeContainer(Container container){
@@ -54,7 +54,7 @@ public class Port {
     }
     public void removeShip(Ship ship){
         ships.remove(ship);
-    }*/
+    }
 
 
 

@@ -20,6 +20,39 @@ public class List<T> {
         }
     }
 
-    public void remove(T container) {
+    public void remove(T data) {
+        if (head == null){
+            return;
+        }
+
+        if (head.data.equals(data)) {
+            head=head.next;
+            return;
+        }
+        Node<T> current = head;
+        Node<T> previous = null;
+
+        while (current != null && !current.data.equals(data)){
+            previous = current;
+            current = current.next;
+        }
+        if (current == null){
+            return;
+        }
+        previous.next=current.next;
     }
+
+
+    public String listAll(){
+        String list = "";
+        int index = 0;
+        Node<T> current = head;
+        while (current != null) {
+            list += index + ": "+ current+"\n";
+            current = current.next;
+            index++;
+        }
+        return list;
+    }
+
 }

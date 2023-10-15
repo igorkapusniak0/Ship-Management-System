@@ -6,12 +6,10 @@ import utils.Utilities;
 public class Container {
     private String contCode = "";
     private int contSize = 0;
-    private Pallet pallet;
-    public Container(String contCode, int contSize,Pallet pallet){
+    private List<Pallet> pallet;
+    public Container(String contCode, int contSize){
         setContCode();
         setContSize(contSize);
-
-
     }
     public void setContCode(){
         this.contCode = "Container-"+Utilities.uniqueCodeGenerator();

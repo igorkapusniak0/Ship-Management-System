@@ -9,7 +9,11 @@ public class Pallet {
     private double weight =0;
     private double volume =0;
     public Pallet(String description,int quantity,double value,double weight,double volume){
-
+        setDescription(description);
+        setQuantity(quantity);
+        setValue(value);
+        setWeight(weight);
+        setVolume(volume);
     }
 
     public void setDescription(String description){

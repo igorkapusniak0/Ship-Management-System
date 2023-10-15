@@ -15,43 +15,36 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 public class MainScene extends Application {
-    Stage window;
+
+    private WelcomeScene scene1;
+    private PortScene scene2;
+
+    private Stage primaryStage;
     public static void main(String[] args) {
         launch();
     }
     @Override
     public void start(Stage primaryStage) throws FileNotFoundException {
-        window = primaryStage;
-        window.setTitle("CA1");
+        this.primaryStage = primaryStage;
 
-        FileInputStream inp = new FileInputStream("/home/igor/IdeaProjects/CA1/src/main/Images/download.jpeg");
-        Image im = new Image(inp);
-        BackgroundImage bi = new BackgroundImage(im,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundPosition.DEFAULT,
-                BackgroundSize.DEFAULT);
+        Pane root1= new Pane();
+        Pane root2= new Pane();
 
-        VBox hBox = new VBox(175);
-        hBox.setAlignment(Pos.CENTER);
-        hBox.setBackground(new Background(bi));
+        scene1 = new WelcomeScene(root1,this);
+        scene2 = new PortScene(root2, this);
 
-        Label welcome = new Label("Welcome To My CA1");
-        welcome.setFont(new Font("Arial",50));
-        Label proceed = new Label("Student Number: 20102236");
-        proceed.setTextFill(Color.web("#ffffff"));
-        Button button = new Button("Proceed");
-        button.setFont(new Font("Arial",30));
-        button.setOnAction(event -> System.out.println("helo"));
+        primaryStage.setTitle("CA1");
 
-        hBox.getChildren().addAll(welcome,proceed,button);
-        Scene scene = new Scene(hBox,1500,800);
-        window.setScene(scene);
-        window.show();
-
-
-
+        primaryStage.setScene(scene1);
+        primaryStage.show();
     }
+    public void switchToScene1(){
+        primaryStage.setScene(scene1);
+    }
+    public void switchToScene2(){
+        primaryStage.setScene(scene2);
+    }
+
 
 
 }

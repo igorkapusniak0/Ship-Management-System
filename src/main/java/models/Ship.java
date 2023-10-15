@@ -1,5 +1,6 @@
 package models;
 
+import LinkedList.List;
 import utils.Utilities;
 
 import java.net.URL;
@@ -9,7 +10,7 @@ public class Ship {
     private String shipCode = "";
     private String shipCountry = "";
     private URL shipPicture;
-    //private Container container;
+    private List<Container> container;
 
     public Ship(String shipName, String shipCountry, URL shipPicture, String shipCode){
 
