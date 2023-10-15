@@ -21,7 +21,7 @@ public class WelcomeScene extends Scene{
         this.mainScene = mainScene;
 
 
-        FileInputStream inp = new FileInputStream("C:/Users/ikapu/IdeaProjects/CA1/src/main/Images/download.jpeg");
+        FileInputStream inp = new FileInputStream("src/main/Images/download.jpeg");
         Image im = new Image(inp);
         BackgroundImage bi = new BackgroundImage(im,
                 BackgroundRepeat.NO_REPEAT,
