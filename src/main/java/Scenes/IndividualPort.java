@@ -1,30 +1,59 @@
-//package Scenes;
-//
-//import javafx.application.Application;
-//import javafx.scene.Parent;
-//import javafx.scene.Scene;
-//import javafx.scene.control.Button;
-//import javafx.scene.layout.StackPane;
-//import javafx.stage.Stage;
-//
-//public class IndividualPort {
-//    Stage window2;
-//    private PortScene portScene;
-//
-//
-//    public static Stage primaryStage() {
-//        window2 = primaryStage;
-//        window2.setTitle("abc");
-//
-//        Button button3 = new Button("Alert");
-//        button3.setOnAction(e -> System.out.println("Title of Windowabc"));
-//
-//        StackPane layout3 = new StackPane();
-//        layout3.getChildren().addAll(button3);
-//        Scene scene3 = new Scene(layout3,400,400);
-//        window2.setScene(scene3);
-//        window2.show();
-//        return this.pr
-//    }
-//
-//}
+package Scenes;
+
+
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
+import models.Port;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+public class IndividualPort extends Scene{
+    private PortScene portScene;
+
+    private MainScene mainScene;
+    public IndividualPort(Pane root, MainScene mainScene) throws FileNotFoundException {
+        super(root);
+        this.mainScene = mainScene;
+
+        Label showPorts = new Label();
+        showPorts.setText("");
+
+
+
+
+        VBox vBox = new VBox(10);
+        vBox.setAlignment(Pos.TOP_CENTER);
+        vBox.setMinSize(1800,800);
+        vBox.setStyle(" -fx-padding: 40px;");
+
+        VBox vBox1 = new VBox(10);
+        vBox1.setAlignment(Pos.BOTTOM_CENTER);
+        vBox1.setMinSize(1800,800);
+        vBox1.setStyle(" -fx-padding: 40px;");
+
+        Label welcome = new Label("Welcome To My CA1");
+        welcome.setFont(new Font("Arial",50));
+        welcome.setTextFill(Color.web("#ffffff"));
+        Label proceed = new Label("Student Number: 20102236");
+        proceed.setFont(new Font("Arial",25));
+        proceed.setTextFill(Color.web("#ffffff"));
+        Button button = new Button("Proceed");
+        button.setFont(new Font("Arial",30));
+        button.setOnAction(event -> mainScene.switchToScene2());
+
+
+        vBox.getChildren().addAll(showPorts);
+        vBox1.getChildren().add(button);
+        root.getChildren().addAll(vBox,vBox1);
+    }
+
+}

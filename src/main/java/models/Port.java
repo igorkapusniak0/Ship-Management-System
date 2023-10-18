@@ -56,7 +56,8 @@ public class Port {
         ships.remove(ship);
     }
 
-
-
-
+    @Override
+    public String toString() {
+        return "Port{" + portName + " " + portCode + " " + portCountry+" "+containersInPort + " "+ ships;
+    }
 }

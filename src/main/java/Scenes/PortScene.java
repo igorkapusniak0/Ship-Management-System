@@ -1,24 +1,27 @@
 package Scenes;
 
 import LinkedList.List;
-import javafx.application.Application;
+import LinkedList.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-import javafx.stage.*;
 import models.Container;
 import models.Ship;
 import models.Port;
 import utils.Utilities;
 import utils.Countries;
+import Controller.API;
+
+import static java.lang.Integer.*;
 
 public class PortScene extends Scene {
+    private API api;
     private MainScene mainScene;
     private Port ports;
     private Ship ships;
     private Container containersInPort;
-    private List list;
+    public List<Port> portList;
     Pane window;
     private List<Countries> countriesList;
    // private IndividualPort individualPort;
@@ -28,11 +31,12 @@ public class PortScene extends Scene {
         super(root);
         this.mainScene = mainScene;
         window = root;
-        list = new List<Port>();
+        portList = new List<Port>();
         BorderPane borderPane = new BorderPane();
 
         TextField nameField = new TextField();
         TextField countryField = new TextField();
+        TextField test = new TextField();
         ComboBox<String> countryBox = new ComboBox<>();
 
 //        ComboBox<Ship> shipField = new ComboBox<>();
@@ -116,10 +120,25 @@ public class PortScene extends Scene {
 
         Button saveButton = new Button("Save");
         Button button = new Button("sd");
+
+
+
+//        String all="";
+//        Node<Port> portNod = portList.head;
+//        if (portNod==null)
+//        while (portList != null){
+//            portNod=portNod.next;
+//            all += ports.toString();
+//        }
+
+
+        String finalAll = all;
         button.setOnAction(e-> {
-            String he =list.listAll();
-            System.out.println(he);
+            portList.getDataAtIndex(0);
+            System.out.println(finalAll);
+            portList.display();
         });
+
 
         saveButton.setOnAction(event -> {
             String name = nameField.getText();
@@ -130,7 +149,8 @@ public class PortScene extends Scene {
 
             if (!name.isBlank() && countryBox.getValue()!=null && !portNameExists && !portCodeExists){
                 tableView.getItems().add(new Port(name, country,code));
-                list.add(ports);
+                Port newPort = new Port(name,country,code);
+                portList.add(newPort);
                 error.setText("");
                 error2.setText("");
             }else{
@@ -153,6 +173,18 @@ public class PortScene extends Scene {
                 }
             }
         });
+//        Button delete = new Button();
+//        delete.setOnAction(e-> {
+//            if (nameField.toString().equals(ports.portCode)){
+//
+//                list.remove();
+//            }
+//        });
+        tableView.setOnMouseClicked(e3-> {
+            if (e3.getClickCount() ==2){
+                mainScene.switchToScene3();
+            }
+        });
 
 //        tableView.setOnMouseClicked(e2->{
 //            if(e2.getClickCount() == 2){
@@ -167,7 +199,7 @@ public class PortScene extends Scene {
 //        });
 
         VBox vBox = new VBox(10);
-        vBox.getChildren().addAll(portLabel, nameField, error, countryLabel, countryBox, error2, saveButton, button);
+        vBox.getChildren().addAll(portLabel, nameField, error, countryLabel, countryBox, error2, saveButton, button, test);
 
         HBox hBox = new HBox(100);
         hBox.getChildren().addAll(vBox, tableView);

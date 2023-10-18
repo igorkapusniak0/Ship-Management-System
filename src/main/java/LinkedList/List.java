@@ -1,7 +1,7 @@
 package LinkedList;
 
 public class List<T> {
-    private Node<T> head;
+    public Node<T> head;
     public List(){
         this.head = null;
     }
@@ -43,16 +43,34 @@ public class List<T> {
     }
 
 
-    public String listAll(){
-        String list = "";
-        int index = 0;
+    public void display() {
         Node<T> current = head;
         while (current != null) {
-            list += index + ": "+ current+"\n";
+            System.out.print(current.data + " ");
             current = current.next;
-            index++;
         }
-        return list;
+        System.out.println();
     }
+    public String getDataAtIndex(int index) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("Index cannot be negative: " + index);
+        }
+
+        Node<T> current = head;
+        int i = 0;
+
+        while (current != null && i < index) {
+            current = current.next;
+            i++;
+        }
+
+        if (current == null) {
+            throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+        }
+
+        return current.data.toString();
+    }
+
+
 
 }
