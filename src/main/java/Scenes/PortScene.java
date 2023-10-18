@@ -22,6 +22,7 @@ public class PortScene extends Scene {
     private Ship ships;
     private Container containersInPort;
     public List<Port> portList;
+    public IndividualPort individualPort;
     Pane window;
     private List<Countries> countriesList;
    // private IndividualPort individualPort;
@@ -123,22 +124,14 @@ public class PortScene extends Scene {
 
 
 
-//        String all="";
-//        Node<Port> portNod = portList.head;
-//        if (portNod==null)
-//        while (portList != null){
-//            portNod=portNod.next;
-//            all += ports.toString();
-//        }
-
-
-        String finalAll = all;
-        button.setOnAction(e-> {
-            portList.getDataAtIndex(0);
-            System.out.println(finalAll);
-            portList.display();
+        button.setOnAction(e -> {
+            String data = portList.getDataAtIndex(0);
+            if (data != null) {
+                System.out.println("Data at index 0: " + data);
+            } else {
+                System.out.println("Data at index 0 is null.");
+            }
         });
-
 
         saveButton.setOnAction(event -> {
             String name = nameField.getText();
@@ -180,9 +173,14 @@ public class PortScene extends Scene {
 //                list.remove();
 //            }
 //        });
-        tableView.setOnMouseClicked(e3-> {
-            if (e3.getClickCount() ==2){
-                mainScene.switchToScene3();
+        tableView.setOnMouseClicked(e3 -> {
+            if (e3.getClickCount() == 2) {
+                Port selectedPort = tableView.getSelectionModel().getSelectedItem(); // Get the selected Port
+                if (selectedPort != null) {
+                    // Assuming you have an instance of IndividualPort called individualPort
+                    individualPort.setShowPortsText(selectedPort.getPortName());
+                    mainScene.switchToScene3();
+                }
             }
         });
 

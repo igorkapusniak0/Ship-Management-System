@@ -18,7 +18,7 @@ import java.io.FileNotFoundException;
 
 public class IndividualPort extends Scene{
     private PortScene portScene;
-
+    private Label showPorts;
     private MainScene mainScene;
     public IndividualPort(Pane root, MainScene mainScene) throws FileNotFoundException {
         super(root);
@@ -54,6 +54,9 @@ public class IndividualPort extends Scene{
         vBox.getChildren().addAll(showPorts);
         vBox1.getChildren().add(button);
         root.getChildren().addAll(vBox,vBox1);
+    }
+    public void setShowPortsText(String text) {
+        showPorts.setText(text);
     }
 
 }

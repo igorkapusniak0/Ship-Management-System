@@ -43,29 +43,31 @@ public class List<T> {
     }
 
 
-    public void display() {
+    public String display() {
+        String show = "";
         Node<T> current = head;
         while (current != null) {
-            System.out.print(current.data + " ");
+            show += current.next + "\n";
             current = current.next;
         }
-        System.out.println();
+        return show;
     }
     public String getDataAtIndex(int index) {
         if (index < 0) {
             throw new IndexOutOfBoundsException("Index cannot be negative: " + index);
         }
-
         Node<T> current = head;
         int i = 0;
-
         while (current != null && i < index) {
             current = current.next;
             i++;
         }
-
         if (current == null) {
             throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+        }
+
+        if (current.data == null) {
+            return null;
         }
 
         return current.data.toString();
