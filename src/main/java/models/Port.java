@@ -58,6 +58,6 @@ public class Port {
 
     @Override
     public String toString() {
-        return "Port{" + portName + " " + portCode + " " + portCountry+" "+containersInPort + " "+ ships;
+        return "Port{" + portName + " " + portCode + " " + portCountry+" "+containersInPort + " "+ ships+"}";
     }
 }

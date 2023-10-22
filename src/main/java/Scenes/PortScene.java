@@ -147,12 +147,12 @@ public class PortScene extends Scene {
         tableView.setOnMouseClicked(e3 -> {
             if (e3.getClickCount() == 2) {
                 port = tableView.getSelectionModel().getSelectedItem();
-                System.out.println(port);
                 if (port != null) {
                     try {
                         Pane individualPortRoot = new Pane();
                         individualPort = new IndividualPort(individualPortRoot, mainScene,this,api, port);
                         mainScene.switchToScene3();
+                        System.out.println("portScene: " + port);
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);
                     }

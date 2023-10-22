@@ -30,6 +30,7 @@ public class IndividualPort extends Scene {
     public Label showPorts;
     private MainScene mainScene;
     private API api;
+    private Port port;
 
     public void setShowPortsText(String text) {
         showPorts.setText(text);
@@ -39,11 +40,14 @@ public class IndividualPort extends Scene {
         super(root);
         this.mainScene = mainScene;
         this.portScene = portScene;
-        this.api=api;
+        this.api = api;
+        this.port = port;
 
         showPorts = new Label();
         showPorts.setFont(new Font("Arial", 50));
-        System.out.println(portScene.api.getPortAtIndex(0));
+
+        System.out.println("outside save: " + port);
+
 
 
         String portInfo = portScene.api.getPortAtIndex(0);
@@ -80,17 +84,20 @@ public class IndividualPort extends Scene {
 
 
         Button saveButton = new Button("Save");
+
         saveButton.setOnAction(event -> {
             String name = shipName.getText();
             String country = shipCountry.getValue();
             String code = Utilities.uniqueCodeGenerator();
             String picture = shipPicture.getText();
+            Port abc = portScene.port;
+            System.out.println("inside save: " + port);
 
             if (!name.isBlank() && shipCountry.getValue()!=null){
-                if(portScene.port != null){
-                    portScene.port = api.getPort(port);
+                if(port != null){
                     Ship newShip = new Ship(name,country,picture,code);
-                    port.addShip(newShip);
+                    //port.addShip(newShip);
+                    System.out.println(newShip);
                 }
             }else{
                 if (name.isBlank()){
