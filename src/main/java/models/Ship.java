@@ -9,10 +9,10 @@ public class Ship {
     private String shipName = "";
     private String shipCode = "";
     private String shipCountry = "";
-    private URL shipPicture;
+    private String shipPicture;
     private List<Container> container;
 
-    public Ship(String shipName, String shipCountry, URL shipPicture, String shipCode){
+    public Ship(String shipName, String shipCountry, String shipPicture, String shipCode){
 
     }
 
@@ -38,10 +38,10 @@ public class Ship {
     public String getShipCode(){
         return shipCode;
     }
-    public void setShipPicture(URL shipPicture){
+    public void setShipPicture(String shipPicture){
         this.shipPicture = shipPicture;
     }
-    public URL getShipPicture(){
+    public String getShipPicture(){
         return shipPicture;
     }
 

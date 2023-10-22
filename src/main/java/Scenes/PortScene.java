@@ -9,30 +9,31 @@ import javafx.scene.layout.*;
 import models.Container;
 import models.Ship;
 import models.Port;
+import models.Singleton;
 import utils.Utilities;
 import utils.Countries;
 import Controller.API;
 
+import java.io.FileNotFoundException;
+
 import static java.lang.Integer.*;
 
 public class PortScene extends Scene {
-    private API api;
+    public API api;
     private MainScene mainScene;
-    private Port ports;
+    public Port port;
     private Ship ships;
     private Container containersInPort;
-    public List<Port> portList;
     public IndividualPort individualPort;
     Pane window;
     private List<Countries> countriesList;
    // private IndividualPort individualPort;
 
-
     public PortScene(Pane root,MainScene mainScene) {
         super(root);
         this.mainScene = mainScene;
         window = root;
-        portList = new List<Port>();
+        this.api = new API();
         BorderPane borderPane = new BorderPane();
 
         TextField nameField = new TextField();
@@ -45,39 +46,8 @@ public class PortScene extends Scene {
 //
 //
 //        contField.getItems().addAll();
-        String[] countries = {"Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
-                "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain",
-                "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
-                "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria",
-                "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada",
-                "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros",
-                "Congo (Congo-Brazzaville)", "Costa Rica", "Cote d'Ivoire", "Croatia", "Cuba",
-                "Cyprus", "Czechia", "Democratic Republic of the Congo (Congo-Kinshasa)", "Denmark",
-                "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador",
-                "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji",
-                "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana",
-                "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti",
-                "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq",
-                "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan",
-                "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho",
-                "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macedonia (North Macedonia)",
-                "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
-                "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia",
-                "Montenegro", "Morocco", "Mozambique", "Myanmar (formerly Burma)", "Namibia", "Nauru",
-                "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea",
-                "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea",
-                "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
-                "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines",
-                "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia",
-                "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands",
-                "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan",
-                "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania",
-                "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia",
-                "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates",
-                "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu",
-                "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"};
 
-        countryBox.getItems().addAll(countries);
+        countryBox.getItems().addAll(Utilities.countries);
 
 
         nameField.setMaxWidth(300);
@@ -125,7 +95,7 @@ public class PortScene extends Scene {
 
 
         button.setOnAction(e -> {
-            String data = portList.getDataAtIndex(0);
+            String data = api.getPortAtIndex(0);
             if (data != null) {
                 System.out.println("Data at index 0: " + data);
             } else {
@@ -143,7 +113,7 @@ public class PortScene extends Scene {
             if (!name.isBlank() && countryBox.getValue()!=null && !portNameExists && !portCodeExists){
                 tableView.getItems().add(new Port(name, country,code));
                 Port newPort = new Port(name,country,code);
-                portList.add(newPort);
+                api.addPort(newPort);
                 error.setText("");
                 error2.setText("");
             }else{
@@ -173,13 +143,19 @@ public class PortScene extends Scene {
 //                list.remove();
 //            }
 //        });
+
         tableView.setOnMouseClicked(e3 -> {
             if (e3.getClickCount() == 2) {
-                Port selectedPort = tableView.getSelectionModel().getSelectedItem(); // Get the selected Port
-                if (selectedPort != null) {
-                    // Assuming you have an instance of IndividualPort called individualPort
-                    individualPort.setShowPortsText(selectedPort.getPortName());
-                    mainScene.switchToScene3();
+                port = tableView.getSelectionModel().getSelectedItem();
+                System.out.println(port);
+                if (port != null) {
+                    try {
+                        Pane individualPortRoot = new Pane();
+                        individualPort = new IndividualPort(individualPortRoot, mainScene,this,api, port);
+                        mainScene.switchToScene3();
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         });

@@ -73,6 +73,24 @@ public class List<T> {
         return current.data.toString();
     }
 
+    public boolean isEmpty(){
+        if (head == null){
+            return true;
+        }else {
+            return false;
+        }
+    }
+    public boolean contains(T data) {
+        Node<T> current = head;
+        while (current != null) {
+            if (current.data.equals(data)) {
+                return true;
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
 
 
 }
