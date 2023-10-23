@@ -2,59 +2,54 @@ package Scenes;
 
 
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import models.Container;
 import models.Port;
 import Controller.API;
 import models.Ship;
-import models.Singleton;
 import utils.Utilities;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.URL;
 
 public class IndividualPort extends Scene {
     private PortScene portScene;
-    public Label showPorts;
+    public Label showPortName;
     private MainScene mainScene;
     private API api;
     private Port port;
 
-    public void setShowPortsText(String text) {
-        showPorts.setText(text);
-    }
+    //public void setShowPortsText(String text) {
+     //   showPortName.setText(text);
+    //}
 
     public IndividualPort(Pane root, MainScene mainScene, PortScene portScene, API api, Port port) throws FileNotFoundException {
         super(root);
         this.mainScene = mainScene;
         this.portScene = portScene;
         this.api = api;
-        this.port = port;
+        this.port = portScene.port;
 
-        showPorts = new Label();
-        showPorts.setFont(new Font("Arial", 50));
+        showPortName = new Label();
+        showPortName.setFont(new Font("Arial", 50));
 
-        System.out.println("outside save: " + port);
+        System.out.println("outside check: " + port);
+        if (port!=null){
+            port.setPortName("update");
+        }
 
 
 
-        String portInfo = portScene.api.getPortAtIndex(0);
-        if (portInfo != null) {
-            showPorts.setText(portInfo);
+
+        if (port != null) {
+            showPortName.setText(port.portName);
         } else {
-            showPorts.setText("No data available");
+            showPortName.setText("No data available");
         }
 
         VBox vBox = new VBox(10);
@@ -86,18 +81,21 @@ public class IndividualPort extends Scene {
         Button saveButton = new Button("Save");
 
         saveButton.setOnAction(event -> {
+            Port port1 = portScene.port;
             String name = shipName.getText();
             String country = shipCountry.getValue();
             String code = Utilities.uniqueCodeGenerator();
             String picture = shipPicture.getText();
-            Port abc = portScene.port;
-            System.out.println("inside save: " + port);
+            //Port abc = portScene.port;
+            System.out.println("inside check: " + port1);
 
             if (!name.isBlank() && shipCountry.getValue()!=null){
-                if(port != null){
+                if(port1 != null){
                     Ship newShip = new Ship(name,country,picture,code);
-                    //port.addShip(newShip);
+
                     System.out.println(newShip);
+                    System.out.println("inside check: " + port1);
+                    port1.addShip(newShip);
                 }
             }else{
                 if (name.isBlank()){
@@ -118,7 +116,7 @@ public class IndividualPort extends Scene {
         button.setFont(new Font("Arial", 30));
         button.setOnAction(event -> mainScene.switchToScene2());
 
-        vBox.getChildren().addAll(addShip,shipName,shipPicture,shipCountry,saveButton,button);
+        vBox.getChildren().addAll(showPortName,addShip,shipName,shipPicture,shipCountry,saveButton,button);
 
         root.getChildren().addAll(vBox);
     }

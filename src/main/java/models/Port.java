@@ -1,4 +1,5 @@
 package models;
+import Controller.API;
 import utils.*;
 import LinkedList.List;
 
@@ -11,10 +12,11 @@ public class Port {
     public List<Container> containersInPort;
     public List<Ship> ships;
 
-    public Port(String portName,String country, String portCode){
+    public Port(String portName, String country, String portCode, List ships, List containersInPort){
         setPortName(portName);
         setPortCountry(country);
         setPortCode();
+
     }
 
     public void setPortName(String portName){

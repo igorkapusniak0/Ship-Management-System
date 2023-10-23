@@ -1,7 +1,6 @@
 package Scenes;
 
 import LinkedList.List;
-import LinkedList.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -9,14 +8,11 @@ import javafx.scene.layout.*;
 import models.Container;
 import models.Ship;
 import models.Port;
-import models.Singleton;
 import utils.Utilities;
 import utils.Countries;
 import Controller.API;
 
 import java.io.FileNotFoundException;
-
-import static java.lang.Integer.*;
 
 public class PortScene extends Scene {
     public API api;
@@ -26,7 +22,6 @@ public class PortScene extends Scene {
     private Container containersInPort;
     public IndividualPort individualPort;
     Pane window;
-    private List<Countries> countriesList;
    // private IndividualPort individualPort;
 
     public PortScene(Pane root,MainScene mainScene) {
@@ -111,8 +106,8 @@ public class PortScene extends Scene {
             boolean portCodeExists = tableView.getItems().stream().anyMatch(port -> port.getPortName().equals(code));
 
             if (!name.isBlank() && countryBox.getValue()!=null && !portNameExists && !portCodeExists){
-                tableView.getItems().add(new Port(name, country,code));
-                Port newPort = new Port(name,country,code);
+                tableView.getItems().add(new Port(name, country,code,null,null));
+                Port newPort = new Port(name,country,code,null,null);
                 api.addPort(newPort);
                 error.setText("");
                 error2.setText("");

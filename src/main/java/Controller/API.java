@@ -4,9 +4,11 @@ import LinkedList.Node;
 import models.Port;
 
 import LinkedList.List;
+import models.Ship;
 
 public class API {
     public List<Port> list = new List<>();
+    public List<Ship> shipList = new List<>();
 
     public boolean addPort(Port port){
         if(port.getPortCode()!=null){
@@ -16,6 +18,15 @@ public class API {
             return false;
         }
     }
+    public boolean addShip(Ship ship){
+        if(ship.getShipCode()!=null){
+            shipList.add(ship);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     public Port deletePort(Port port){
         if(port!=null && list.contains(port)){
             list.remove(port);
