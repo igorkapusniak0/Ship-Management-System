@@ -4,6 +4,7 @@ import LinkedList.List;
 import Scenes.IndividualPort;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import models.Container;
 import models.Ship;
@@ -47,13 +48,26 @@ public class PortScene extends Scene {
         countryField.setPromptText("Enter Country:");
         countryBox.setPromptText("Select Country:");
 
-        ListView<Port> listView = new ListView<>();
+        TableView<Port> listView = new TableView();
         listView.setPlaceholder(new Label("No ports added yet"));
 
+        TableColumn<Port, String> codeColumn = new TableColumn<>("Ship Code");
+        TableColumn<Port, String> nameColumn = new TableColumn<>("Ship Name");
+        TableColumn<Port, String> countryColumn = new TableColumn<>("Ship Country");
 
+        codeColumn.setMinWidth(100);
+        nameColumn.setMinWidth(100);
+        countryColumn.setMinWidth(100);
+
+        listView.getColumns().addAll(codeColumn,nameColumn,countryColumn);
         listView.setMinWidth(1000);
 
-        Button saveButton = new Button("Save");
+        codeColumn.setCellValueFactory(new PropertyValueFactory<>("portCode"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("portName"));
+        countryColumn.setCellValueFactory(new PropertyValueFactory<>("portCountry"));
+
+
+        Button saveButton = new Button("Add Port");
         Button button = new Button("sd");
 
         button.setOnAction(e -> {
