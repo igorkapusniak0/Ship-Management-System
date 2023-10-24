@@ -1,12 +1,9 @@
 package Scenes;
 
-
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import models.Container;
@@ -19,14 +16,9 @@ import java.io.FileNotFoundException;
 
 public class IndividualPort extends Scene {
     private PortScene portScene;
-    public Label showPortName;
     private MainScene mainScene;
     private API api;
     private Port port;
-
-    //public void setShowPortsText(String text) {
-     //   showPortName.setText(text);
-    //}
 
     public IndividualPort(Pane root, MainScene mainScene, PortScene portScene, API api, Port port) throws FileNotFoundException {
         super(root);
@@ -35,89 +27,119 @@ public class IndividualPort extends Scene {
         this.api = api;
         this.port = portScene.port;
 
+        Label showPortName;
         showPortName = new Label();
         showPortName.setFont(new Font("Arial", 50));
+        System.out.println(port);
 
-        System.out.println("outside check: " + port);
-        if (port!=null){
-            port.setPortName("update");
-        }
-
-
-
-
+        String abc;
         if (port != null) {
-            showPortName.setText(port.portName);
+            abc = port.getPortName();
+            showPortName.setText(abc);
         } else {
-            showPortName.setText("No data available");
+            abc = "no";
         }
 
         VBox vBox = new VBox(10);
         vBox.setAlignment(Pos.TOP_CENTER);
-        vBox.setMinSize(1800, 800);
+        vBox.setMinSize(1800, 200);
         vBox.setStyle(" -fx-padding: 40px;");
 
         VBox vBox1 = new VBox(10);
-        vBox1.setAlignment(Pos.BOTTOM_CENTER);
-        vBox1.setMinSize(1800, 800);
+        vBox1.setAlignment(Pos.TOP_LEFT);
+        vBox1.setMinSize(900, 600);
         vBox1.setStyle(" -fx-padding: 40px;");
 
-        Label addShip = new Label();
+        VBox vBox2 = new VBox(10);
+        vBox2.setAlignment(Pos.TOP_RIGHT);
+        vBox2.setMinSize(900, 600);
+        vBox2.setStyle(" -fx-padding: 40px;");
+
+        Label addShip = new Label("Add Ship to Port");
+        Label addContainer = new Label("Add Container to Port");
         Label error = new Label();
         Label error2 = new Label();
-        addShip.setText("Add Ship to Port");
 
         TextField shipName = new TextField();
         TextField shipPicture = new TextField();
         ComboBox<String> shipCountry = new ComboBox<>();
-
         shipCountry.getItems().addAll(Utilities.countries);
-
         shipName.setPromptText("Enter Ship Name:");
-        shipCountry.setPromptText("Enter Ship Country:");
+        shipCountry.setPromptText("Select Ship Country:");
         shipPicture.setPromptText("Enter Ship picture:");
 
+        ListView<Ship> shipListView = new ListView<>();
 
-        Button saveButton = new Button("Save");
+        ListView<Container> containerListView = new ListView<>();
 
-        saveButton.setOnAction(event -> {
-            Port port1 = portScene.port;
+        ComboBox<Integer> contSize = new ComboBox();
+        contSize.setPromptText("Select Container Size");
+        contSize.getItems().addAll(10,20,40);
+
+
+
+
+        shipListView.setPlaceholder(new Label("No ships added yet"));
+        containerListView.setPlaceholder(new Label("No containers added yet"));
+
+        Button saveContButton = new Button("Save");
+        saveContButton.setOnAction(event -> {
+            int size = contSize.getValue();
+            String code = Utilities.uniqueCodeGenerator();
+            Container newContainer = new Container(code,size);
+            port.addContainer(newContainer);
+        });
+
+        Button saveShipButton = new Button("Save");
+        saveShipButton.setOnAction(event -> {
             String name = shipName.getText();
             String country = shipCountry.getValue();
             String code = Utilities.uniqueCodeGenerator();
             String picture = shipPicture.getText();
-            //Port abc = portScene.port;
-            System.out.println("inside check: " + port1);
 
-            if (!name.isBlank() && shipCountry.getValue()!=null){
-                if(port1 != null){
-                    Ship newShip = new Ship(name,country,picture,code);
-
-                    System.out.println(newShip);
-                    System.out.println("inside check: " + port1);
-                    port1.addShip(newShip);
-                }
-            }else{
-                if (name.isBlank()){
-                    error.setText("Field cannot be empty");
-                }
-                else {
+            if (!name.isBlank() && country != null) {
+                Ship newShip = new Ship(name, country, picture, code);
+                port.ships.add(newShip);
+                shipListView.getItems().add(newShip);
+                System.out.println(newShip);
+            } else {
+                if (name.isBlank()) {
+                    error.setText("Ship Name cannot be empty");
+                } else {
                     error.setText("");
                 }
-                if (shipCountry.getValue()==null){
-                    error2.setText("Field cannot be empty");
-                }else {
+                if (country == null) {
+                    error2.setText("Ship Country cannot be empty");
+                } else {
                     error2.setText("");
                 }
             }
+
         });
 
         Button button = new Button("Proceed");
         button.setFont(new Font("Arial", 30));
         button.setOnAction(event -> mainScene.switchToScene2());
 
-        vBox.getChildren().addAll(showPortName,addShip,shipName,shipPicture,shipCountry,saveButton,button);
+        vBox.getChildren().addAll(showPortName);
 
-        root.getChildren().addAll(vBox);
+        vBox1.getChildren().addAll(addShip, shipName, shipPicture, shipCountry, shipListView ,saveShipButton);
+
+        vBox2.getChildren().addAll(addContainer,contSize,containerListView,saveContButton);
+
+        HBox hBox=new HBox();
+        hBox.getChildren().addAll(button);
+        hBox.setAlignment(Pos.BOTTOM_CENTER);
+        hBox.setStyle(" -fx-padding: 40px;");
+
+        BorderPane borderPane = new BorderPane();
+
+        borderPane.setLeft(vBox1);
+        borderPane.setRight(vBox2);
+        borderPane.setCenter(vBox);
+        borderPane.setCenter(hBox);
+
+        root.getChildren().addAll(borderPane);
+
     }
 }

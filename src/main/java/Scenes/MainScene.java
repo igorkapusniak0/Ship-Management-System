@@ -1,5 +1,6 @@
 package Scenes;
 
+import Controller.API;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -20,7 +21,7 @@ public class MainScene extends Application {
     private WelcomeScene scene1;
     private PortScene scene2;
     private IndividualPort scene3;
-    private Port port;
+    private API api;
 
     private Stage primaryStage;
     public static void main(String[] args) {
@@ -36,7 +37,9 @@ public class MainScene extends Application {
 
         scene1 = new WelcomeScene(root1,this);
         scene2 = new PortScene(root2, this);
-        scene3 = new IndividualPort(root3,this, scene2, scene2.api, port);
+        scene3 = new IndividualPort(root3,this, scene2, scene2.api, scene2.port);
+
+
 
         primaryStage.setTitle("CA1");
 
@@ -52,6 +55,7 @@ public class MainScene extends Application {
     public void switchToScene3(){
         primaryStage.setScene(scene3);
     }
+    public void switchScene(Scene scene){primaryStage.setScene(scene);}
 
 
 

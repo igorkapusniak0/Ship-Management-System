@@ -6,13 +6,17 @@ import utils.Utilities;
 import java.net.URL;
 
 public class Ship {
-    private String shipName = "";
-    private String shipCode = "";
-    private String shipCountry = "";
-    private String shipPicture;
-    private List<Container> container;
+    public String shipName = "";
+    public String shipCode = "";
+    public String shipCountry = "";
+    public String shipPicture;
+    public List<Container> container;
 
     public Ship(String shipName, String shipCountry, String shipPicture, String shipCode){
+        setShipName(shipName);
+        setShipCountry(shipCountry);
+        setShipPicture(shipPicture);
+        setShipCode();
 
     }
 
@@ -51,6 +55,10 @@ public class Ship {
     public void removeContainer(Container container){
         containersInPort.remove(container);
     }*/
+    @Override
+    public String toString() {
+        return "Ship{Name " + shipName + ", Code: " + shipCode + ", Country: " + shipCountry+", Picture: "+shipPicture+"}";
+    }
 
 
 

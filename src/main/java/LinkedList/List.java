@@ -1,6 +1,8 @@
 package LinkedList;
 
-public class List<T> {
+import java.io.Serializable;
+
+public class List<T> implements Serializable {
     public Node<T> head;
     public List(){
         this.head = null;

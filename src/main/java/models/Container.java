@@ -18,9 +18,13 @@ public class Container {
         return contCode;
     }
     public void setContSize(int contSize){
+        int height = 8;
+        int width = 8;
         if(!(contSize==10||contSize==20||contSize==40)){
-            this.contSize=10;
-        }this.contSize=contSize;
+            this.contSize=10*height*width;
+        }else{
+            this.contSize = contSize*height*width;
+        }
     }
     public int getContSize(){
         return contSize;
@@ -32,6 +36,10 @@ public class Container {
         int volume = 0;
         volume = contSize*height*width;
         return volume;
+    }
+    @Override
+    public String toString() {
+        return "Container{Code: "+  contCode + ", " + "Size: "+contSize+ "}";
     }
 
 }

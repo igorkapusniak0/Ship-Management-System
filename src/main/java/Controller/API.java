@@ -6,9 +6,14 @@ import models.Port;
 import LinkedList.List;
 import models.Ship;
 
+
+
+import java.io.*;
+
 public class API {
+    private Port port;
     public List<Port> list = new List<>();
-    public List<Ship> shipList = new List<>();
+
 
     public boolean addPort(Port port){
         if(port.getPortCode()!=null){
@@ -20,7 +25,7 @@ public class API {
     }
     public boolean addShip(Ship ship){
         if(ship.getShipCode()!=null){
-            shipList.add(ship);
+            port.ships.add(ship);
             return true;
         }else{
             return false;
@@ -60,8 +65,6 @@ public class API {
         return current.data.portName;
 
     }
-
-
 
 
 

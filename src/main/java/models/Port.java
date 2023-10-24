@@ -6,16 +6,19 @@ import LinkedList.List;
 
 
 public class Port {
+    private List list;
     public String portName;
     public String portCode;
     public String portCountry;
-    public List<Container> containersInPort;
-    public List<Ship> ships;
+    public List<Container> containersInPort = new List<>();
+    public List<Ship> ships = new List<>();
 
     public Port(String portName, String country, String portCode, List ships, List containersInPort){
         setPortName(portName);
         setPortCountry(country);
         setPortCode();
+        setShips(ships);
+        setContainersInPort(containersInPort);
 
     }
 
@@ -54,12 +57,24 @@ public class Port {
     public void addShip(Ship ship){
         ships.add(ship);
     }
+    public List<Ship> getShips(){
+        return ships;
+    }
+
+    public void setContainersInPort(List<Container> containersInPort) {
+        this.containersInPort = containersInPort;
+    }
+
+    public void setShips(List<Ship> ships) {
+        this.ships = ships;
+    }
+
     public void removeShip(Ship ship){
         ships.remove(ship);
     }
 
     @Override
     public String toString() {
-        return "Port{" + portName + " " + portCode + " " + portCountry+" "+containersInPort + " "+ ships+"}";
+        return "Port{Name: " + portName + ", Code: " + portCode + ", Country: " + portCountry+", Containers: "+containersInPort + ", Ships: " + ships + "}";
     }
 }
