@@ -1,5 +1,7 @@
 package LinkedList;
 
+import models.Container;
+
 import java.io.Serializable;
 
 public class List<T> implements Serializable {
@@ -91,6 +93,24 @@ public class List<T> implements Serializable {
             current = current.next;
         }
         return false;
+    }
+    public int listSize(){
+        int size = 0;
+        Node<T> current = head;
+        while (current != null){
+            size+=1;
+        }
+        return size;
+    }
+    public Container getContainer(Container container){
+        Node<T> current = head;
+        while (current!=null){
+            if (current.equals(container)){
+                return container;
+            }
+            current=current.next;
+        }
+        return null;
     }
 
 

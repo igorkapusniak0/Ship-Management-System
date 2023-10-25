@@ -65,5 +65,10 @@ public class Pallet {
         return volume;
     }
 
+    @Override
+    public String toString(){
+        return "Pallet{Description: "+ description+", Quantity: " +quantity +", Value: "+ value + ", Volume: "+ volume + ", Weight: "+ weight + "}";
+    }
+
 
 }

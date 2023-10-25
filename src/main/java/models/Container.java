@@ -6,10 +6,11 @@ import utils.Utilities;
 public class Container {
     private String contCode = "";
     private int contSize = 0;
-    private List<Pallet> pallet;
-    public Container(String contCode, int contSize){
+    public List<Pallet> pallets =new List();
+    public Container(String contCode, int contSize, List pallets){
         setContCode();
         setContSize(contSize);
+        setPallets(pallets);
     }
     public void setContCode(){
         this.contCode = "Container-"+Utilities.uniqueCodeGenerator();
@@ -36,6 +37,12 @@ public class Container {
         int volume = 0;
         volume = contSize*height*width;
         return volume;
+    }
+    public void addPallet(Pallet pallet){
+        pallets.add(pallet);
+    }
+    public void setPallets(List<Pallet> pallets){
+        this.pallets=pallets;
     }
     @Override
     public String toString() {

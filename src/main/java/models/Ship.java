@@ -3,14 +3,12 @@ package models;
 import LinkedList.List;
 import utils.Utilities;
 
-import java.net.URL;
-
 public class Ship {
     public String shipName = "";
     public String shipCode = "";
     public String shipCountry = "";
     public String shipPicture;
-    public List<Container> container;
+    public List<Container> containers;
 
     public Ship(String shipName, String shipCountry, String shipPicture, String shipCode){
         setShipName(shipName);

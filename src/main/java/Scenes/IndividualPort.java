@@ -1,5 +1,6 @@
 package Scenes;
 
+import LinkedList.List;
 import LinkedList.Node;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -9,13 +10,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import models.Container;
+import models.Pallet;
 import models.Port;
 import Controller.API;
 import models.Ship;
 import utils.Utilities;
 
 import java.io.FileNotFoundException;
-import java.util.Collection;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,8 @@ public class IndividualPort extends Scene {
     private TableView<Ship> shipListView = new TableView();
     private TableView<Container> containerListView = new TableView();
     private Ship ship;
+    private ShipScene shipScene;
+    private Container container;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public IndividualPort(Pane root, MainScene mainScene, PortScene portScene, API api, Port port) throws FileNotFoundException {
@@ -41,18 +44,14 @@ public class IndividualPort extends Scene {
         showPortName = new Label();
         showPortName.setFont(new Font("Arial", 50));
         System.out.println(port);
-
-        String abc;
-        if (port != null) {
-            abc = port.getPortName();
-            showPortName.setText(abc);
-        } else {
-            abc = "no";
+        if(port!=null) {
+            showPortName.setText(port.getPortName());
         }
+
 
         VBox vBox = new VBox(10);
         vBox.setAlignment(Pos.TOP_CENTER);
-        vBox.setMinSize(1800, 200);
+        vBox.setMaxHeight(50);
         vBox.setStyle(" -fx-padding: 40px;");
 
         VBox vBox1 = new VBox(10);
@@ -119,8 +118,6 @@ public class IndividualPort extends Scene {
         contSizeColumn.setCellValueFactory(new PropertyValueFactory<>("contSize"));
 
 
-        shipListView.setPlaceholder(new Label("No ships added yet"));
-
         if(port!=null&&port.ships!=null&&port.containersInPort!=null) {
             scheduler.scheduleAtFixedRate(this::updateShipListView, 0, 1, TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateContainerListView, 0, 1, TimeUnit.SECONDS);
@@ -130,9 +127,28 @@ public class IndividualPort extends Scene {
         saveContButton.setOnAction(event -> {
             int size = contSize.getValue();
             String code = Utilities.uniqueCodeGenerator();
-            Container newContainer = new Container(code,size);
+            Container newContainer = new Container(code,size,new List<Pallet>());
             port.addContainer(newContainer);
 
+        });
+
+        containerListView.setOnMouseClicked(e3 -> {
+            if (e3.getClickCount() == 2) {
+                Container selectedContainer = containerListView.getSelectionModel().getSelectedItem();
+                if (selectedContainer != null) {
+                    container = selectedContainer;
+                    try {
+                        Pane individualPortRoot = new Pane();
+                         shipScene = new ShipScene(individualPortRoot, mainScene,portScene , api, selectedContainer);
+                        mainScene.switchScene(shipScene);
+                        System.out.println(container);
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    System.out.println("ship is null");
+                }
+            }
         });
 
         Button saveShipButton = new Button("Add Ship");
@@ -180,7 +196,7 @@ public class IndividualPort extends Scene {
 
         borderPane.setLeft(vBox1);
         borderPane.setRight(vBox2);
-        borderPane.setCenter(vBox);
+        borderPane.setTop(vBox);
         borderPane.setCenter(hBox);
 
         root.getChildren().addAll(borderPane);
