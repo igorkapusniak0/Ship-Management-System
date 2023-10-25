@@ -22,32 +22,28 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ShipScene extends Scene {
+public class ContainerInPortScene extends Scene {
     private PortScene portScene;
     private MainScene mainScene;
     private API api;
     private Port port;
-    private TableView<Ship> shipListView = new TableView();
-    private TableView<Container> containerListView = new TableView();
     private Ship ship;
     private Container container;
     public Pallet pallet;
     private TableView<Pallet> palletTableView = new TableView();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public ShipScene(Pane root, MainScene mainScene, PortScene portScene, API api, Container container) throws FileNotFoundException {
+    public ContainerInPortScene(Pane root, MainScene mainScene, PortScene portScene, API api, Container container) throws FileNotFoundException {
         super(root);
         this.mainScene = mainScene;
         this.portScene = portScene;
         this.api = api;
         this.port = portScene.port;
         this.container = container;
-        System.out.println(container);
 
         Label displayName;
         displayName = new Label();
         displayName.setFont(new Font("Arial", 50));
-        System.out.println(port);
         if(port!=null) {
             displayName.setText(port.getPortName());
         }
@@ -98,12 +94,13 @@ public class ShipScene extends Scene {
         valueColumn.setMinWidth(100);
         weightColumn.setMinWidth(100);
         volumeColumn.setMinWidth(100);
+        palletTableView.getColumns().addAll(descriptionColumn,quantityColumn,valueColumn,weightColumn,volumeColumn);
 
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
         weightColumn.setCellValueFactory(new PropertyValueFactory<>("weight"));
-        valueColumn.setCellValueFactory(new PropertyValueFactory<>("volume"));
+        volumeColumn.setCellValueFactory(new PropertyValueFactory<>("volume"));
 
         palletTableView.setPlaceholder(new Label("No Pallets Added Yet"));
 
@@ -118,7 +115,7 @@ public class ShipScene extends Scene {
             Pallet newPallet = new Pallet(descriptionText,quantityText,valueText,weightText,volumeText);
 
             container.addPallet(newPallet);
-            System.out.println(newPallet);
+
         });
 
         if(container!=null) {
@@ -153,19 +150,15 @@ public class ShipScene extends Scene {
 
         root.getChildren().add(borderPane);
     }
-
     private void updatePalletView() {
-        if (this.container != null&&this.container.pallets!=null) {
+        if (this.container.pallets!=null) {
             Platform.runLater(() -> {
                 Node<Pallet> current = this.container.pallets.head;
                 while (current != null) {
-                    if (!palletTableView.getItems().contains(current.data)) {
+                    if (!(palletTableView.getItems().contains(current.data))) {
                         palletTableView.getItems().add(current.data);
-                        System.out.println(current);
                     }
                     current=current.next;
-                    System.out.println(container);
-                    System.out.println(current);
                 }
             });
         }
