@@ -78,7 +78,7 @@ public class ShipScene extends Scene {
         codeCont.setCellValueFactory(new PropertyValueFactory<>("contCode"));
         contSizeColumn.setCellValueFactory(new PropertyValueFactory<>("contSize"));
 
-        if(port!=null&&port.ships!=null&&port.containersInPort!=null) {
+        if(ship!=null) {
             scheduler.scheduleAtFixedRate(this::updateContainerListView, 0, 1, TimeUnit.SECONDS);
         }
 
@@ -88,7 +88,7 @@ public class ShipScene extends Scene {
             String code = Utilities.uniqueCodeGenerator();
             Container newContainer = new Container(code,size,new List<Pallet>());
             ship.addContainer(newContainer);
-
+            System.out.println(newContainer);
         });
 
         containerListView.setOnMouseClicked(e3 -> {
@@ -127,13 +127,12 @@ public class ShipScene extends Scene {
         borderPane.setBottom(hBox);
 
         root.getChildren().addAll(borderPane);
-
-
     }
     private void updateContainerListView() {
-        if (this.port != null && this.port.containersInPort != null) {
+        if (this.ship != null) {
             Platform.runLater(() -> {
-                Node<Container> current = this.port.containersInPort.head;
+                Node<Container> current = this.ship.containers.head;
+                System.out.println("this"+current);
                 while (current != null){
                     if(!(containerListView.getItems().contains(current.data))) {
                         containerListView.getItems().add(current.data);

@@ -8,7 +8,7 @@ public class Ship {
     public String shipCode = "";
     public String shipCountry = "";
     public String shipPicture;
-    public List<Container> containers;
+    public List<Container> containers = new List<>();
 
     public Ship(String shipName, String shipCountry, String shipPicture, String shipCode){
         setShipName(shipName);

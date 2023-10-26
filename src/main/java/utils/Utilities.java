@@ -134,7 +134,7 @@ public class Utilities {
             "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea",
             "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
             "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines",
-            "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia",
+            "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia","Sealand", "Senegal", "Serbia",
             "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands",
             "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan",
             "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania",
