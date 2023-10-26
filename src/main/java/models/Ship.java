@@ -47,12 +47,12 @@ public class Ship {
         return shipPicture;
     }
 
-    /*public void addContainer(Container container){
-        containersInPort.add(container);
+    public void addContainer(Container container){
+        containers.add(container);
     }
     public void removeContainer(Container container){
-        containersInPort.remove(container);
-    }*/
+        containers.remove(container);
+    }
     @Override
     public String toString() {
         return "Ship{Name " + shipName + ", Code: " + shipCode + ", Country: " + shipCountry+", Picture: "+shipPicture+"}";

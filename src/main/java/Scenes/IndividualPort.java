@@ -29,7 +29,8 @@ public class IndividualPort extends Scene {
     private TableView<Ship> shipListView = new TableView();
     private TableView<Container> containerListView = new TableView();
     private Ship ship;
-    private ContainerInPortScene shipScene;
+    private ContainerInPortScene containerInPortScene;
+    private ShipScene shipScene;
     private Container container;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -139,7 +140,25 @@ public class IndividualPort extends Scene {
                     container = selectedContainer;
                     try {
                         Pane individualPortRoot = new Pane();
-                         shipScene = new ContainerInPortScene(individualPortRoot, mainScene,portScene , api, selectedContainer);
+                         containerInPortScene = new ContainerInPortScene(individualPortRoot, mainScene,portScene , api, selectedContainer);
+                        mainScene.switchScene(containerInPortScene);
+                        System.out.println(container);
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    System.out.println("Container is null");
+                }
+            }
+        });
+        shipListView.setOnMouseClicked(e3 -> {
+            if (e3.getClickCount() == 2) {
+                Ship selectedShip = shipListView.getSelectionModel().getSelectedItem();
+                if (selectedShip != null) {
+                    ship = selectedShip;
+                    try {
+                        Pane individualPortRoot = new Pane();
+                        shipScene = new ShipScene(individualPortRoot,mainScene,portScene,api,selectedShip);
                         mainScene.switchScene(shipScene);
                         System.out.println(container);
                     } catch (FileNotFoundException e) {
