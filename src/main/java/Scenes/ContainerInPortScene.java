@@ -45,8 +45,20 @@ public class ContainerInPortScene extends Scene {
         displayName = new Label();
         displayName.setFont(new Font("Arial", 50));
         if(port!=null) {
-            displayName.setText(port.getPortName());
+            displayName.setText(container.getContCode());
         }
+
+        Label palletDescription = new Label("Description");
+        Label quantityofItems = new Label("Quantity of Items");
+        Label palletValue = new Label("Value of Pallet");
+        Label palletWeight = new Label("Weight of Pallet");
+        Label palletVolume = new Label("Volume of Pallet");
+
+        Label desError = new Label();
+        Label quantityError = new Label();
+        Label valueError = new Label();
+        Label weightError = new Label();
+        Label volumeError = new Label();
 
         VBox vBox = new VBox(10);
         vBox.setAlignment(Pos.TOP_CENTER);
@@ -107,15 +119,58 @@ public class ContainerInPortScene extends Scene {
 
         Button addPalletButton = new Button("Add Pallet");
         addPalletButton.setOnAction(actionEvent -> {
+            boolean isValid = true;
+
             String descriptionText = description.getText();
-            int quantityText  = Integer.parseInt(quantity.getText());
-            double valueText  = Double.parseDouble(value.getText());
-            double weightText  = Double.parseDouble(weight.getText());
-            double volumeText  = Double.parseDouble(volume.getText());
-            Pallet newPallet = new Pallet(descriptionText,quantityText,valueText,weightText,volumeText);
+            String quantityText = quantity.getText();
+            String valueText = value.getText();
+            String weightText = weight.getText();
+            String volumeText = volume.getText();
 
-            container.addPallet(newPallet);
+            if (descriptionText.isBlank()) {
+                desError.setText("Description cannot be empty");
+                isValid = false;
+            } else {
+                desError.setText("");
+            }
 
+            if (quantityText.isBlank() || !quantityText.matches("\\d+")) {
+                quantityError.setText(quantityText.isBlank() ? "Pallet quantity cannot be empty" : "Invalid quantity");
+                isValid = false;
+            } else {
+                quantityError.setText("");
+            }
+
+            if (valueText.isBlank() || !valueText.matches("[0-9]+\\.?[0-9]*")) {
+                valueError.setText(valueText.isBlank() ? "Pallet value cannot be empty" : "Invalid value");
+                isValid = false;
+            } else {
+                valueError.setText("");
+            }
+
+            if (weightText.isBlank() || !weightText.matches("[0-9]+\\.?[0-9]*")) {
+                weightError.setText(weightText.isBlank() ? "Pallet weight cannot be empty" : "Invalid weight");
+                isValid = false;
+            } else {
+                weightError.setText("");
+            }
+
+            if (volumeText.isBlank() || !volumeText.matches("[0-9]+\\.?[0-9]*")) {
+                volumeError.setText(volumeText.isBlank() ? "Pallet volume cannot be empty" : "Invalid volume");
+                isValid = false;
+            } else {
+                volumeError.setText("");
+            }
+
+            if (isValid) {
+                Integer quantityValue = Integer.parseInt(quantityText);
+                Double valueValue = Double.parseDouble(valueText);
+                Double weightValue = Double.parseDouble(weightText);
+                Double volumeValue = Double.parseDouble(volumeText);
+
+                Pallet newPallet = new Pallet(descriptionText, quantityValue, valueValue, weightValue, volumeValue);
+                container.addPallet(newPallet);
+            }
         });
 
         if(container!=null) {
@@ -131,12 +186,12 @@ public class ContainerInPortScene extends Scene {
 //            }
 //        });
 
-        Button button = new Button("Proceed");
+        Button button = new Button("Return");
         button.setFont(new Font("Arial", 30));
-        button.setOnAction(event -> mainScene.switchToScene2());
+        button.setOnAction(event -> mainScene.switchScene(portScene.individualPort));
 
         vBox.getChildren().add(displayName);
-        vBox1.getChildren().addAll(addPallet,description,quantity,value,weight,volume,palletTableView,addPalletButton);
+        vBox1.getChildren().addAll(addPallet,palletDescription,description,desError,quantityofItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError,palletTableView,addPalletButton);
 
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);

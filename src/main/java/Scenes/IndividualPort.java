@@ -44,7 +44,7 @@ public class IndividualPort extends Scene {
         Label showPortName;
         showPortName = new Label();
         showPortName.setFont(new Font("Arial", 50));
-        System.out.println(port);
+
         if(port!=null) {
             showPortName.setText(port.getPortName());
         }
@@ -66,9 +66,21 @@ public class IndividualPort extends Scene {
         vBox2.setStyle(" -fx-padding: 40px;");
 
         Label addShip = new Label("Add Ship to Port");
+        addShip.setFont(new Font("Arial",20));
+        addShip.setAlignment(Pos.TOP_CENTER);
         Label addContainer = new Label("Add Container to Port");
+        addContainer.setFont(new Font("Arial",20));
+        addContainer.setAlignment(Pos.TOP_CENTER);
         Label error = new Label();
+        Label error1 = new Label();
         Label error2 = new Label();
+        Label error3 = new Label();
+
+        Label shipNameLabel = new Label("Ship Name");
+        Label shipPictureLabel = new Label("Ship Picture");
+        Label shipCountryLabel = new Label("Ship Country");
+
+        Label contSizeLabel = new Label("Container Size");
 
         TextField shipName = new TextField();
         TextField shipPicture = new TextField();
@@ -125,11 +137,21 @@ public class IndividualPort extends Scene {
         }
 
         Button saveContButton = new Button("Add Container");
+
         saveContButton.setOnAction(event -> {
-            int size = contSize.getValue();
+            Integer size = contSize.getValue();
             String code = Utilities.uniqueCodeGenerator();
-            Container newContainer = new Container(code,size,new List<Pallet>());
-            port.addContainer(newContainer);
+            boolean containerCodeExists = containerListView.getItems().stream().anyMatch(container -> container.getContCode().equals(code));
+
+            if (size == null){
+                error.setText("Container Size cannot be empty");
+            }else {
+                if(!containerCodeExists){
+                    Container newContainer = new Container(code,size,new List<Pallet>());
+                    port.addContainer(newContainer);
+                    error.setText("");
+                }
+            }
 
         });
 
@@ -142,12 +164,9 @@ public class IndividualPort extends Scene {
                         Pane individualPortRoot = new Pane();
                          containerInPortScene = new ContainerInPortScene(individualPortRoot, mainScene,portScene , api, selectedContainer);
                         mainScene.switchScene(containerInPortScene);
-                        System.out.println(container);
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);
                     }
-                } else {
-                    System.out.println("Container is null");
                 }
             }
         });
@@ -160,12 +179,9 @@ public class IndividualPort extends Scene {
                         Pane individualPortRoot = new Pane();
                         shipScene = new ShipScene(individualPortRoot,mainScene,portScene,api,selectedShip);
                         mainScene.switchScene(shipScene);
-                        System.out.println(container);
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);
                     }
-                } else {
-                    System.out.println("ship is null");
                 }
             }
         });
@@ -176,35 +192,44 @@ public class IndividualPort extends Scene {
             String country = shipCountry.getValue();
             String code = Utilities.uniqueCodeGenerator();
             String picture = shipPicture.getText();
+            boolean shipCodeExists = shipListView.getItems().stream().anyMatch(ship -> ship.getShipCode().equals(code));
 
-            if (!name.isBlank() && country != null) {
+
+            if (!name.isBlank() && country != null && !picture.isBlank() && !shipCodeExists) {
                 Ship newShip = new Ship(name, country, picture, code);
                 port.ships.add(newShip);
-                System.out.println(newShip);
+                error1.setText("");
+                error2.setText("");
+                error3.setText("");
             } else {
                 if (name.isBlank()) {
-                    error.setText("Ship Name cannot be empty");
+                    error1.setText("Ship Name cannot be empty");
                 } else {
-                    error.setText("");
+                    error1.setText("");
                 }
                 if (country == null) {
                     error2.setText("Ship Country cannot be empty");
                 } else {
                     error2.setText("");
                 }
+                if (picture.isBlank()){
+                    error3.setText("Ship picture cannot be empty");
+                }else {
+                    error3.setText("");
+                }
             }
 
         });
 
-        Button button = new Button("Proceed");
+        Button button = new Button("Return");
         button.setFont(new Font("Arial", 30));
         button.setOnAction(event -> mainScene.switchToScene2());
 
         vBox.getChildren().addAll(showPortName);
 
-        vBox1.getChildren().addAll(addShip, shipName, shipPicture, shipCountry, shipListView ,saveShipButton);
+        vBox1.getChildren().addAll(addShip,shipNameLabel,shipName, error1,shipPictureLabel,shipPicture, error3,shipCountryLabel,shipCountry, error2,shipListView ,saveShipButton);
 
-        vBox2.getChildren().addAll(addContainer,contSize,containerListView,saveContButton);
+        vBox2.getChildren().addAll(addContainer,contSizeLabel,contSize,error,containerListView,saveContButton);
 
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
@@ -243,7 +268,6 @@ public class IndividualPort extends Scene {
                 while (current != null){
                     if(!(containerListView.getItems().contains(current.data))) {
                         containerListView.getItems().add(current.data);
-                        System.out.println(current);
                     }
                     current = current.next;
                 }

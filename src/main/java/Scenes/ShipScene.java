@@ -49,6 +49,9 @@ public class ShipScene extends Scene {
             displayName.setText(ship.shipName);
         }
 
+
+
+
         VBox vBox = new VBox(10);
         vBox.setAlignment(Pos.TOP_CENTER);
         vBox.setMaxHeight(50);
@@ -110,9 +113,9 @@ public class ShipScene extends Scene {
             }
         });
 
-        Button button = new Button("Proceed");
+        Button button = new Button("Return");
         button.setFont(new Font("Arial", 30));
-        button.setOnAction(event -> mainScene.switchToScene2());
+        button.setOnAction(event -> mainScene.switchScene(portScene.individualPort));
 
         vBox.getChildren().addAll(displayName);
         vBox1.getChildren().addAll(contSize,containerListView,saveContButton);
@@ -136,7 +139,6 @@ public class ShipScene extends Scene {
                 while (current != null){
                     if(!(containerListView.getItems().contains(current.data))) {
                         containerListView.getItems().add(current.data);
-                        System.out.println(current);
                     }
                     current = current.next;
                 }

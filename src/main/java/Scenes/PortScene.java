@@ -121,12 +121,9 @@ public class PortScene extends Scene {
                         Pane individualPortRoot = new Pane();
                         individualPort = new IndividualPort(individualPortRoot, mainScene, this, api, port);
                         mainScene.switchScene(individualPort);
-                        System.out.println("portScene: " + port);
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);
                     }
-                } else {
-                    System.out.println("port is null");
                 }
             }
         });
