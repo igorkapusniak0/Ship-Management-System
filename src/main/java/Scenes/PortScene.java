@@ -21,6 +21,7 @@ public class PortScene extends Scene {
     public Port port;
     private Ship ships;
     public IndividualPort individualPort;
+    private SeaScene seaScene;
     Pane window;
 
     public PortScene(Pane root, MainScene mainScene) {
@@ -71,12 +72,9 @@ public class PortScene extends Scene {
         Button button = new Button("sd");
 
         button.setOnAction(e -> {
-            String data = api.getPortAtIndex(0);
-            if (data != null) {
-                System.out.println("Data at index 0: " + data);
-            } else {
-                System.out.println("Data at index 0 is null.");
-            }
+            Pane sea = new Pane();
+            seaScene = new SeaScene(sea,mainScene,this,api);
+            mainScene.switchScene(seaScene);
         });
 
         saveButton.setOnAction(event -> {

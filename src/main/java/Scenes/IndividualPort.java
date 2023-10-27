@@ -55,26 +55,26 @@ public class IndividualPort extends Scene {
         vBox.setMaxHeight(50);
         vBox.setStyle(" -fx-padding: 40px;");
 
-        VBox vBox1 = new VBox(10);
+       /* VBox vBox1 = new VBox(10);
         vBox1.setAlignment(Pos.TOP_LEFT);
         vBox1.setMinSize(700, 600);
-        vBox1.setStyle(" -fx-padding: 40px;");
+        vBox1.setStyle(" -fx-padding: 40px;");*/
 
         VBox vBox2 = new VBox(10);
         vBox2.setAlignment(Pos.TOP_RIGHT);
         vBox2.setMinSize(700, 600);
         vBox2.setStyle(" -fx-padding: 40px;");
 
-        Label addShip = new Label("Add Ship to Port");
-        addShip.setFont(new Font("Arial",20));
-        addShip.setAlignment(Pos.TOP_CENTER);
+        //Label addShip = new Label("Add Ship to Port");
+        //addShip.setFont(new Font("Arial",20));
+        //addShip.setAlignment(Pos.TOP_CENTER);
         Label addContainer = new Label("Add Container to Port");
         addContainer.setFont(new Font("Arial",20));
         addContainer.setAlignment(Pos.TOP_CENTER);
         Label error = new Label();
-        Label error1 = new Label();
+        /*Label error1 = new Label();
         Label error2 = new Label();
-        Label error3 = new Label();
+        Label error3 = new Label();*/
 
         Label shipNameLabel = new Label("Ship Name");
         Label shipPictureLabel = new Label("Ship Picture");
@@ -82,7 +82,7 @@ public class IndividualPort extends Scene {
 
         Label contSizeLabel = new Label("Container Size");
 
-        TextField shipName = new TextField();
+        /*TextField shipName = new TextField();
         TextField shipPicture = new TextField();
         ComboBox<String> shipCountry = new ComboBox<>();
         shipCountry.getItems().addAll(Utilities.countries);
@@ -91,13 +91,13 @@ public class IndividualPort extends Scene {
         shipCountry.setPromptText("Select Ship Country:");
         shipCountry.setMaxWidth(300);
         shipPicture.setPromptText("Enter Ship picture:");
-        shipPicture.setMaxWidth(300);
+        shipPicture.setMaxWidth(300);*/
 
         ComboBox<Integer> contSize = new ComboBox();
         contSize.setPromptText("Select Container Size");
         contSize.getItems().addAll(10,20,40);
         contSize.setMaxWidth(300);
-
+/*
         TableColumn<Ship, String> codeColumn = new TableColumn<>("Ship Code");
         TableColumn<Ship, String> nameColumn = new TableColumn<>("Ship Name");
         TableColumn<Ship, String> countryColumn = new TableColumn<>("Ship Country");
@@ -114,7 +114,7 @@ public class IndividualPort extends Scene {
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("shipCountry"));
         pictureColumn.setCellValueFactory(new PropertyValueFactory<>("shipPicture"));
 
-        shipListView.setPlaceholder(new Label("No ships added yet"));
+        shipListView.setPlaceholder(new Label("No ships added yet"));*/
 
         containerListView.setPlaceholder(new Label("No containers added yet"));
 
@@ -170,6 +170,157 @@ public class IndividualPort extends Scene {
                 }
             }
         });
+        /*shipListView.setOnMouseClicked(e3 -> {
+            if (e3.getClickCount() == 2) {
+                Ship selectedShip = shipListView.getSelectionModel().getSelectedItem();
+                if (selectedShip != null) {
+                    ship = selectedShip;
+                    try {
+                        Pane individualPortRoot = new Pane();
+                        shipScene = new ShipScene(individualPortRoot,mainScene,portScene,api,selectedShip);
+                        mainScene.switchScene(shipScene);
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+
+        Button saveShipButton = new Button("Add Ship");
+        saveShipButton.setOnAction(event -> {
+            String name = shipName.getText();
+            String country = shipCountry.getValue();
+            String code = Utilities.uniqueCodeGenerator();
+            String picture = shipPicture.getText();
+            boolean shipCodeExists = shipListView.getItems().stream().anyMatch(ship -> ship.getShipCode().equals(code));
+
+
+            if (!name.isBlank() && country != null && !picture.isBlank() && !shipCodeExists) {
+                Ship newShip = new Ship(name, country, picture, code);
+                port.ships.add(newShip);
+                error1.setText("");
+                error2.setText("");
+                error3.setText("");
+            } else {
+                if (name.isBlank()) {
+                    error1.setText("Ship Name cannot be empty");
+                } else {
+                    error1.setText("");
+                }
+                if (country == null) {
+                    error2.setText("Ship Country cannot be empty");
+                } else {
+                    error2.setText("");
+                }
+                if (picture.isBlank()){
+                    error3.setText("Ship picture cannot be empty");
+                }else {
+                    error3.setText("");
+                }
+            }
+
+        });*/
+
+        Button button = new Button("Return");
+        button.setFont(new Font("Arial", 30));
+        button.setOnAction(event -> mainScene.switchToScene2());
+
+        vBox.getChildren().addAll(showPortName);
+
+        //vBox1.getChildren().addAll(addShip,shipNameLabel,shipName, error1,shipPictureLabel,shipPicture, error3,shipCountryLabel,shipCountry, error2,shipListView ,saveShipButton);
+
+        vBox2.getChildren().addAll(addContainer,contSizeLabel,contSize,error,containerListView,saveContButton);
+
+        HBox hBox=new HBox();
+        hBox.getChildren().addAll(button);
+        hBox.setAlignment(Pos.BOTTOM_CENTER);
+        hBox.setStyle(" -fx-padding: 40px;");
+
+        BorderPane borderPane = new BorderPane();
+
+        borderPane.setLeft(shipDisplay());
+        borderPane.setRight(vBox2);
+        borderPane.setTop(vBox);
+        borderPane.setCenter(hBox);
+
+        root.getChildren().addAll(borderPane);
+
+
+
+    }
+    private void updateShipListView() {
+        if (this.port != null && this.port.ships != null) {
+            Platform.runLater(() -> {
+                Node<Ship> current = this.port.ships.head;
+                while (current != null){
+                    if(!(shipListView.getItems().contains(current.data))) {
+                        shipListView.getItems().add(current.data);
+                    }
+                    current = current.next;
+                }
+            });
+        }
+    }
+    private void updateContainerListView() {
+        if (this.port != null && this.port.containersInPort != null) {
+            Platform.runLater(() -> {
+                Node<Container> current = this.port.containersInPort.head;
+                while (current != null){
+                    if(!(containerListView.getItems().contains(current.data))) {
+                        containerListView.getItems().add(current.data);
+                    }
+                    current = current.next;
+                }
+            });
+        }
+    }
+    public VBox shipDisplay(){
+        VBox vBox1 = new VBox(10);
+        vBox1.setAlignment(Pos.TOP_LEFT);
+        vBox1.setMinSize(700, 600);
+        vBox1.setStyle(" -fx-padding: 40px;");
+
+        Label addShip = new Label("Add Ship to Port");
+        addShip.setFont(new Font("Arial",20));
+        addShip.setAlignment(Pos.TOP_CENTER);
+        Label error1 = new Label();
+        Label error2 = new Label();
+        Label error3 = new Label();
+
+        Label shipNameLabel = new Label("Ship Name");
+        Label shipPictureLabel = new Label("Ship Picture");
+        Label shipCountryLabel = new Label("Ship Country");
+
+
+        TextField shipName = new TextField();
+        TextField shipPicture = new TextField();
+        ComboBox<String> shipCountry = new ComboBox<>();
+        shipCountry.getItems().addAll(Utilities.countries);
+        shipName.setPromptText("Enter Ship Name:");
+        shipName.setMaxWidth(300);
+        shipCountry.setPromptText("Select Ship Country:");
+        shipCountry.setMaxWidth(300);
+        shipPicture.setPromptText("Enter Ship picture:");
+        shipPicture.setMaxWidth(300);
+
+        TableColumn<Ship, String> codeColumn = new TableColumn<>("Ship Code");
+        TableColumn<Ship, String> nameColumn = new TableColumn<>("Ship Name");
+        TableColumn<Ship, String> countryColumn = new TableColumn<>("Ship Country");
+        TableColumn<Ship, String> pictureColumn = new TableColumn<>("Ship Picture");
+
+        codeColumn.setMinWidth(100);
+        nameColumn.setMinWidth(100);
+        countryColumn.setMinWidth(100);
+        pictureColumn.setMinWidth(100);
+        shipListView.getColumns().addAll(codeColumn,nameColumn,countryColumn,pictureColumn);
+
+        codeColumn.setCellValueFactory(new PropertyValueFactory<>("shipCode"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("shipName"));
+        countryColumn.setCellValueFactory(new PropertyValueFactory<>("shipCountry"));
+        pictureColumn.setCellValueFactory(new PropertyValueFactory<>("shipPicture"));
+
+        shipListView.setPlaceholder(new Label("No ships added yet"));
+
         shipListView.setOnMouseClicked(e3 -> {
             if (e3.getClickCount() == 2) {
                 Ship selectedShip = shipListView.getSelectionModel().getSelectedItem();
@@ -220,59 +371,8 @@ public class IndividualPort extends Scene {
             }
 
         });
-
-        Button button = new Button("Return");
-        button.setFont(new Font("Arial", 30));
-        button.setOnAction(event -> mainScene.switchToScene2());
-
-        vBox.getChildren().addAll(showPortName);
-
         vBox1.getChildren().addAll(addShip,shipNameLabel,shipName, error1,shipPictureLabel,shipPicture, error3,shipCountryLabel,shipCountry, error2,shipListView ,saveShipButton);
-
-        vBox2.getChildren().addAll(addContainer,contSizeLabel,contSize,error,containerListView,saveContButton);
-
-        HBox hBox=new HBox();
-        hBox.getChildren().addAll(button);
-        hBox.setAlignment(Pos.BOTTOM_CENTER);
-        hBox.setStyle(" -fx-padding: 40px;");
-
-        BorderPane borderPane = new BorderPane();
-
-        borderPane.setLeft(vBox1);
-        borderPane.setRight(vBox2);
-        borderPane.setTop(vBox);
-        borderPane.setCenter(hBox);
-
-        root.getChildren().addAll(borderPane);
-
-
-
-    }
-    private void updateShipListView() {
-        if (this.port != null && this.port.ships != null) {
-            Platform.runLater(() -> {
-                Node<Ship> current = this.port.ships.head;
-                while (current != null){
-                    if(!(shipListView.getItems().contains(current.data))) {
-                        shipListView.getItems().add(current.data);
-                    }
-                    current = current.next;
-                }
-            });
-        }
-    }
-    private void updateContainerListView() {
-        if (this.port != null && this.port.containersInPort != null) {
-            Platform.runLater(() -> {
-                Node<Container> current = this.port.containersInPort.head;
-                while (current != null){
-                    if(!(containerListView.getItems().contains(current.data))) {
-                        containerListView.getItems().add(current.data);
-                    }
-                    current = current.next;
-                }
-            });
-        }
+        return vBox1;
     }
 
 
