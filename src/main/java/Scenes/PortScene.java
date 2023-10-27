@@ -1,19 +1,23 @@
 package Scenes;
 
 import LinkedList.List;
-import Scenes.IndividualPort;
+import LinkedList.Node;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import models.Container;
 import models.Ship;
 import models.Port;
 import utils.Utilities;
-import utils.Countries;
 import Controller.API;
 
 import java.io.FileNotFoundException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class PortScene extends Scene {
     public API api;
@@ -22,7 +26,11 @@ public class PortScene extends Scene {
     private Ship ships;
     public IndividualPort individualPort;
     private SeaScene seaScene;
+    private List list;
+    private TableView<Port> listView = new TableView();
     Pane window;
+    private Port choosePort;
+    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public PortScene(Pane root, MainScene mainScene) {
         super(root);
@@ -49,12 +57,12 @@ public class PortScene extends Scene {
         countryField.setPromptText("Enter Country:");
         countryBox.setPromptText("Select Country:");
 
-        TableView<Port> listView = new TableView();
+
         listView.setPlaceholder(new Label("No ports added yet"));
 
-        TableColumn<Port, String> codeColumn = new TableColumn<>("Ship Code");
-        TableColumn<Port, String> nameColumn = new TableColumn<>("Ship Name");
-        TableColumn<Port, String> countryColumn = new TableColumn<>("Ship Country");
+        TableColumn<Port, String> codeColumn = new TableColumn<>("Port Code");
+        TableColumn<Port, String> nameColumn = new TableColumn<>("Port Name");
+        TableColumn<Port, String> countryColumn = new TableColumn<>("Port Country");
 
         codeColumn.setMinWidth(100);
         nameColumn.setMinWidth(100);
@@ -67,15 +75,15 @@ public class PortScene extends Scene {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("portName"));
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("portCountry"));
 
+        if(api.list.isEmpty()) {
+            scheduler.scheduleAtFixedRate(this::updateListView, 0, 1, TimeUnit.SECONDS);
+
+        }
+        scheduler.scheduleAtFixedRate(() -> {System.out.println(api.listAllPorts());}, 0, 1, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(() -> {System.out.println(api.list.isEmpty());}, 0, 1, TimeUnit.SECONDS);
 
         Button saveButton = new Button("Add Port");
-        Button button = new Button("sd");
-
-        button.setOnAction(e -> {
-            Pane sea = new Pane();
-            seaScene = new SeaScene(sea,mainScene,this,api);
-            mainScene.switchScene(seaScene);
-        });
+        Button button = new Button("Remove Ship");
 
         saveButton.setOnAction(event -> {
             String name = nameField.getText();
@@ -86,7 +94,6 @@ public class PortScene extends Scene {
 
             if (!name.isBlank() && countryBox.getValue() != null && !portNameExists && !portCodeExists) {
                 Port newPort = new Port(name, country, code, new List<Ship>(), new List<Container>());
-                listView.getItems().add(newPort);
                 api.addPort(newPort);
                 error.setText("");
                 error2.setText("");
@@ -110,8 +117,15 @@ public class PortScene extends Scene {
             }
         });
 
-        listView.setOnMouseClicked(e3 -> {
-            if (e3.getClickCount() == 2) {
+        Label removeLabel = new Label("a");
+        button.setOnAction(e -> {
+            api.list.remove(choosePort);
+        });
+
+
+
+        listView.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                 Port selectedPort = listView.getSelectionModel().getSelectedItem();
                 if (selectedPort != null) {
                     port = selectedPort;
@@ -123,11 +137,14 @@ public class PortScene extends Scene {
                         throw new RuntimeException(e);
                     }
                 }
+            } else if (event.getButton() == MouseButton.SECONDARY && event.getClickCount() == 2) {
+                choosePort = listView.getSelectionModel().getSelectedItem();
+                removeLabel.setText(choosePort.portName + " is Selected");
             }
         });
 
         VBox vBox = new VBox(10);
-        vBox.getChildren().addAll(portLabel, nameField, error, countryLabel, countryBox, error2, saveButton, button);
+        vBox.getChildren().addAll(portLabel, nameField, error, countryLabel, countryBox, error2, saveButton, button,removeLabel);
 
         HBox hBox = new HBox(100);
         hBox.getChildren().addAll(vBox, listView);
@@ -137,5 +154,20 @@ public class PortScene extends Scene {
 
         root.getChildren().add(borderPane);
         root.setMinSize(1800, 800);
+    }
+    private void updateListView() {
+        if (this.api.list != null) {
+            Platform.runLater(() -> {
+                Node<Port> current = this.api.list.head;
+                while (current != null){
+                    if(!(listView.getItems().contains(current.data))) {
+                        listView.getItems().add(current.data);
+                    }
+                    current = current.next;
+
+                }
+                listView.getItems().removeIf(port -> !this.api.list.contains(port));
+            });
+        }
     }
 }

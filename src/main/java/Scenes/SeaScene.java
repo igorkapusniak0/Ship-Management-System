@@ -18,7 +18,6 @@ public class SeaScene extends Scene {
     private MainScene mainScene;
     private PortScene portScene;
     private API api;
-
     private IndividualPort individualPort;
     private TableView<Ship> shipTableView = new TableView();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -30,7 +29,7 @@ public class SeaScene extends Scene {
         this.api = api;
         BorderPane borderPane = new BorderPane();
 
-        borderPane.setTop(individualPort.shipDisplay());
+
         root.getChildren().add(borderPane);
 
     }

@@ -67,6 +67,24 @@ public class API {
         return current.data.portName;
     }
 
+    public String listAllPorts() {
+        Node<Port> current = list.head;
+        StringBuilder string = new StringBuilder();
+
+        while (current != null) {
+            string.append(current.data.getPortName()).append(", ");
+            current = current.next;
+        }
+
+        if (!string.isEmpty()) {
+            // Remove the trailing ", " from the string
+            string.setLength(string.length() - 2);
+            return string.toString();
+        } else {
+            return "No ports found.";
+        }
+    }
+
 
 
 

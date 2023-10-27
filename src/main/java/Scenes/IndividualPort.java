@@ -32,7 +32,7 @@ public class IndividualPort extends Scene {
     private ContainerInPortScene containerInPortScene;
     private ShipScene shipScene;
     private Container container;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public IndividualPort(Pane root, MainScene mainScene, PortScene portScene, API api, Port port) throws FileNotFoundException {
         super(root);
@@ -55,26 +55,26 @@ public class IndividualPort extends Scene {
         vBox.setMaxHeight(50);
         vBox.setStyle(" -fx-padding: 40px;");
 
-       /* VBox vBox1 = new VBox(10);
+        VBox vBox1 = new VBox(10);
         vBox1.setAlignment(Pos.TOP_LEFT);
         vBox1.setMinSize(700, 600);
-        vBox1.setStyle(" -fx-padding: 40px;");*/
+        vBox1.setStyle(" -fx-padding: 40px;");
 
         VBox vBox2 = new VBox(10);
         vBox2.setAlignment(Pos.TOP_RIGHT);
         vBox2.setMinSize(700, 600);
         vBox2.setStyle(" -fx-padding: 40px;");
 
-        //Label addShip = new Label("Add Ship to Port");
-        //addShip.setFont(new Font("Arial",20));
-        //addShip.setAlignment(Pos.TOP_CENTER);
+        Label addShip = new Label("Add Ship to Port");
+        addShip.setFont(new Font("Arial",20));
+        addShip.setAlignment(Pos.TOP_CENTER);
         Label addContainer = new Label("Add Container to Port");
         addContainer.setFont(new Font("Arial",20));
         addContainer.setAlignment(Pos.TOP_CENTER);
         Label error = new Label();
-        /*Label error1 = new Label();
+        Label error1 = new Label();
         Label error2 = new Label();
-        Label error3 = new Label();*/
+        Label error3 = new Label();
 
         Label shipNameLabel = new Label("Ship Name");
         Label shipPictureLabel = new Label("Ship Picture");
@@ -82,7 +82,7 @@ public class IndividualPort extends Scene {
 
         Label contSizeLabel = new Label("Container Size");
 
-        /*TextField shipName = new TextField();
+        TextField shipName = new TextField();
         TextField shipPicture = new TextField();
         ComboBox<String> shipCountry = new ComboBox<>();
         shipCountry.getItems().addAll(Utilities.countries);
@@ -91,13 +91,12 @@ public class IndividualPort extends Scene {
         shipCountry.setPromptText("Select Ship Country:");
         shipCountry.setMaxWidth(300);
         shipPicture.setPromptText("Enter Ship picture:");
-        shipPicture.setMaxWidth(300);*/
+        shipPicture.setMaxWidth(300);
 
         ComboBox<Integer> contSize = new ComboBox();
         contSize.setPromptText("Select Container Size");
         contSize.getItems().addAll(10,20,40);
         contSize.setMaxWidth(300);
-/*
         TableColumn<Ship, String> codeColumn = new TableColumn<>("Ship Code");
         TableColumn<Ship, String> nameColumn = new TableColumn<>("Ship Name");
         TableColumn<Ship, String> countryColumn = new TableColumn<>("Ship Country");
@@ -114,7 +113,7 @@ public class IndividualPort extends Scene {
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("shipCountry"));
         pictureColumn.setCellValueFactory(new PropertyValueFactory<>("shipPicture"));
 
-        shipListView.setPlaceholder(new Label("No ships added yet"));*/
+        shipListView.setPlaceholder(new Label("No ships added yet"));
 
         containerListView.setPlaceholder(new Label("No containers added yet"));
 
@@ -170,7 +169,7 @@ public class IndividualPort extends Scene {
                 }
             }
         });
-        /*shipListView.setOnMouseClicked(e3 -> {
+        shipListView.setOnMouseClicked(e3 -> {
             if (e3.getClickCount() == 2) {
                 Ship selectedShip = shipListView.getSelectionModel().getSelectedItem();
                 if (selectedShip != null) {
@@ -219,7 +218,7 @@ public class IndividualPort extends Scene {
                 }
             }
 
-        });*/
+        });
 
         Button button = new Button("Return");
         button.setFont(new Font("Arial", 30));
@@ -227,7 +226,7 @@ public class IndividualPort extends Scene {
 
         vBox.getChildren().addAll(showPortName);
 
-        //vBox1.getChildren().addAll(addShip,shipNameLabel,shipName, error1,shipPictureLabel,shipPicture, error3,shipCountryLabel,shipCountry, error2,shipListView ,saveShipButton);
+        vBox1.getChildren().addAll(addShip,shipNameLabel,shipName, error1,shipPictureLabel,shipPicture, error3,shipCountryLabel,shipCountry, error2,shipListView ,saveShipButton);
 
         vBox2.getChildren().addAll(addContainer,contSizeLabel,contSize,error,containerListView,saveContButton);
 
@@ -238,7 +237,7 @@ public class IndividualPort extends Scene {
 
         BorderPane borderPane = new BorderPane();
 
-        borderPane.setLeft(shipDisplay());
+        borderPane.setLeft(vBox1);
         borderPane.setRight(vBox2);
         borderPane.setTop(vBox);
         borderPane.setCenter(hBox);
@@ -274,7 +273,7 @@ public class IndividualPort extends Scene {
             });
         }
     }
-    public VBox shipDisplay(){
+    /*public VBox shipDisplay(){
         VBox vBox1 = new VBox(10);
         vBox1.setAlignment(Pos.TOP_LEFT);
         vBox1.setMinSize(700, 600);
@@ -373,7 +372,7 @@ public class IndividualPort extends Scene {
         });
         vBox1.getChildren().addAll(addShip,shipNameLabel,shipName, error1,shipPictureLabel,shipPicture, error3,shipCountryLabel,shipCountry, error2,shipListView ,saveShipButton);
         return vBox1;
-    }
+    }*/
 
 
 

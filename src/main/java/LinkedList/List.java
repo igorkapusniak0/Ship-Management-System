@@ -78,11 +78,7 @@ public class List<T> implements Serializable {
     }
 
     public boolean isEmpty(){
-        if (head == null){
-            return true;
-        }else {
-            return false;
-        }
+        return head ==null;
     }
     public boolean contains(T data) {
         Node<T> current = head;
