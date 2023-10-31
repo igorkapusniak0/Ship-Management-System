@@ -15,6 +15,7 @@ import java.io.*;
 public class API {
     private Port port;
     public List<Port> list = new List<>();
+    public List<Ship> shipsAtSea = new List<>();
 
 
     public boolean addPort(Port port){
@@ -84,6 +85,30 @@ public class API {
             return "No ports found.";
         }
     }
+
+    public void moveShip(Port source, Port destination,Ship ship){
+        destination.addShip(ship);
+        source.removeShip(ship);
+    }
+    public void unloadContainer(Ship source, Port destination,Container container){
+        destination.containersInPort.add(container);
+        source.removeContainer(container);
+    }
+    public void loadContainer(Port source, Ship destination,Container container){
+        destination.addContainer(container);
+        source.containersInPort.remove(container);
+    }
+    public void moveShipFromSea(Port destination,Ship ship){
+        destination.addShip(ship);
+        shipsAtSea.remove(ship);
+    }
+
+    public void moveShipToSea(Port source,Ship ship){
+        shipsAtSea.add(ship);
+        source.ships.remove(ship);
+    }
+
+
 
 
 

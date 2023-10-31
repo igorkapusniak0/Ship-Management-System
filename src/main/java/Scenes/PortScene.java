@@ -3,6 +3,7 @@ package Scenes;
 import LinkedList.List;
 import LinkedList.Node;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -23,13 +24,16 @@ public class PortScene extends Scene {
     public API api;
     private MainScene mainScene;
     public Port port;
-    private Ship ships;
+    private Ship ship;
     public IndividualPort individualPort;
-    private SeaScene seaScene;
+    private ShipScene shipScene;
     private List list;
     private TableView<Port> listView = new TableView();
+    private TableView<Ship> shipsAtSeaTableView = new TableView();
     Pane window;
     private Port choosePort;
+    private Ship chosenShip;
+    private ComboBox<Port> portsToDockAt = new ComboBox<>();
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public PortScene(Pane root, MainScene mainScene) {
@@ -57,6 +61,8 @@ public class PortScene extends Scene {
         countryField.setPromptText("Enter Country:");
         countryBox.setPromptText("Select Country:");
 
+        listView.setMaxHeight(500);
+
 
         listView.setPlaceholder(new Label("No ports added yet"));
 
@@ -69,21 +75,62 @@ public class PortScene extends Scene {
         countryColumn.setMinWidth(100);
 
         listView.getColumns().addAll(codeColumn,nameColumn,countryColumn);
-        listView.setMinWidth(1000);
 
         codeColumn.setCellValueFactory(new PropertyValueFactory<>("portCode"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("portName"));
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("portCountry"));
 
+        //-------------------------------------------------------------
+
+        TableColumn<Ship, String> shipCodeColumn = new TableColumn<>("Ship Code");
+        TableColumn<Ship, String> shipNameColumn = new TableColumn<>("Ship Name");
+        TableColumn<Ship, String> shipCountryColumn = new TableColumn<>("Ship Country");
+        TableColumn<Ship, String> shipPictureColumn = new TableColumn<>("Ship Picture");
+
+        shipCodeColumn.setMinWidth(100);
+        shipNameColumn.setMinWidth(100);
+        shipCountryColumn.setMinWidth(100);
+        shipPictureColumn.setMinWidth(100);
+        shipsAtSeaTableView.getColumns().addAll(shipCodeColumn,shipNameColumn,shipCountryColumn,shipPictureColumn);
+
+        shipCodeColumn.setCellValueFactory(new PropertyValueFactory<>("shipCode"));
+        shipNameColumn.setCellValueFactory(new PropertyValueFactory<>("shipName"));
+        shipCountryColumn.setCellValueFactory(new PropertyValueFactory<>("shipCountry"));
+        shipPictureColumn.setCellValueFactory(new PropertyValueFactory<>("shipPicture"));
+
+        portsToDockAt.setPromptText("Select Port:");
+        shipsAtSeaTableView.setPlaceholder(new Label("No ships added yet"));
+
+        Label removeShipLabel = new Label("");
+        Button unselectShip = new Button("Unselect Ship");
+        unselectShip.setOnAction(event -> {
+            chosenShip = null;
+            removeShipLabel.setText("");
+        });
+
+        shipsAtSeaTableView.setOnMouseClicked(event -> {
+            if(event.getButton() == MouseButton.SECONDARY && event.getClickCount() ==2){
+                Ship selectedPallet = shipsAtSeaTableView.getSelectionModel().getSelectedItem();
+                if(selectedPallet != null){
+                    chosenShip = selectedPallet;
+                    chosenShip = shipsAtSeaTableView.getSelectionModel().getSelectedItem();
+                    removeShipLabel.setText("Ship: "+ chosenShip.getShipName() + " is selected");
+                }
+            }
+        });
+
+        //-------------------------------------------------------------
+
         if(api.list.isEmpty()) {
             scheduler.scheduleAtFixedRate(this::updateListView, 0, 1, TimeUnit.SECONDS);
-
+            scheduler.scheduleAtFixedRate(this::updateShipView, 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(this::updateComboBoxContainer, 0, 1, TimeUnit.SECONDS);
         }
         scheduler.scheduleAtFixedRate(() -> {System.out.println(api.listAllPorts());}, 0, 1, TimeUnit.SECONDS);
         scheduler.scheduleAtFixedRate(() -> {System.out.println(api.list.isEmpty());}, 0, 1, TimeUnit.SECONDS);
 
         Button saveButton = new Button("Add Port");
-        Button button = new Button("Remove Ship");
+        Button button = new Button("Remove Port");
 
         saveButton.setOnAction(event -> {
             String name = nameField.getText();
@@ -117,12 +164,48 @@ public class PortScene extends Scene {
             }
         });
 
-        Label removeLabel = new Label("a");
+        Label removeLabel = new Label("");
         button.setOnAction(e -> {
             api.list.remove(choosePort);
+            removeLabel.setText("");
+        });
+
+        Button unselect = new Button("Unselect Port");
+        unselect.setOnAction(event -> {
+            choosePort = null;
+            removeLabel.setText("");
+        });
+        Button updateButton = new Button("Update");
+        updateButton.setOnAction(event -> {
+            choosePort.setPortName(nameField.getText());
+            choosePort.setPortCountry(countryBox.getValue());
+            removeLabel.setText("");
         });
 
 
+        Button dockShip = new Button("Move Ship to Port");
+        dockShip.setOnAction(event -> {
+            api.moveShipFromSea(portsToDockAt.getValue(),chosenShip);
+
+        });
+        shipsAtSeaTableView.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                Ship selectedShip = shipsAtSeaTableView.getSelectionModel().getSelectedItem();
+                if (selectedShip != null) {
+                    ship = selectedShip;
+                    try {
+                        Pane individualPortRoot = new Pane();
+                        shipScene = new ShipScene(individualPortRoot, mainScene, this, api, selectedShip);
+                        mainScene.switchScene(shipScene);
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            } else if (event.getButton() == MouseButton.SECONDARY && event.getClickCount() == 2) {
+                chosenShip = shipsAtSeaTableView.getSelectionModel().getSelectedItem();
+                removeShipLabel.setText(chosenShip.shipName + " is Selected");
+            }
+        });
 
         listView.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
@@ -143,14 +226,24 @@ public class PortScene extends Scene {
             }
         });
 
-        VBox vBox = new VBox(10);
-        vBox.getChildren().addAll(portLabel, nameField, error, countryLabel, countryBox, error2, saveButton, button,removeLabel);
+        VBox leftVBox = new VBox(10);
+        leftVBox.getChildren().addAll(portLabel, nameField, error, countryLabel, countryBox, error2, saveButton, button, updateButton, unselect, removeLabel);
 
-        HBox hBox = new HBox(100);
-        hBox.getChildren().addAll(vBox, listView);
+        VBox rightVBox = new VBox(10);
+        rightVBox.getChildren().addAll(shipsAtSeaTableView, unselectShip,portsToDockAt,dockShip, removeShipLabel);
 
-        borderPane.setCenter(hBox);
-        borderPane.setStyle(" -fx-padding: 10px;");
+        HBox centerHBox = new HBox(100);
+        centerHBox.getChildren().addAll(listView);
+
+        borderPane.setLeft(leftVBox);
+        borderPane.setRight(rightVBox);
+        borderPane.setCenter(centerHBox);
+
+        leftVBox.setAlignment(Pos.TOP_LEFT);
+        rightVBox.setAlignment(Pos.TOP_RIGHT);
+        borderPane.setMinSize(1400,800);
+
+        borderPane.setStyle("-fx-padding: 10px;");
 
         root.getChildren().add(borderPane);
         root.setMinSize(1800, 800);
@@ -159,15 +252,56 @@ public class PortScene extends Scene {
         if (this.api.list != null) {
             Platform.runLater(() -> {
                 Node<Port> current = this.api.list.head;
-                while (current != null){
-                    if(!(listView.getItems().contains(current.data))) {
-                        listView.getItems().add(current.data);
+                while (current != null) {
+                    Port port = current.data;
+                    if (listView.getItems().contains(port)) {
+                        int index = listView.getItems().indexOf(port);
+                        listView.getItems().set(index, port);
+                    } else {
+                        listView.getItems().add(port);
                     }
                     current = current.next;
-
                 }
                 listView.getItems().removeIf(port -> !this.api.list.contains(port));
             });
         }
     }
+
+    private void updateShipView() {
+        if (this.api.shipsAtSea!=null) {
+            Platform.runLater(() -> {
+                Node<Ship> current = this.api.shipsAtSea.head;
+                while (current != null) {
+                    Ship ship = current.data;
+                    if (shipsAtSeaTableView.getItems().contains(ship)) {
+                        int index = shipsAtSeaTableView.getItems().indexOf(ship);
+                        shipsAtSeaTableView.getItems().set(index,ship);
+                    }else{
+                        shipsAtSeaTableView.getItems().add(ship);
+                    }
+                    current=current.next;
+                }
+                shipsAtSeaTableView.getItems().removeIf(ship -> !this.api.shipsAtSea.contains(ship));
+            });
+        }
+    }
+
+    private void updateComboBoxContainer() {
+        if (api.list != null) {
+            Platform.runLater(() -> {
+                Port selectedPort = portsToDockAt.getValue();
+                portsToDockAt.getItems().clear();
+                Node<Port> current = api.list.head;
+                while (current != null) {
+                    Port port = current.data;
+                    portsToDockAt.getItems().add(port);
+                    current = current.next;
+                }
+                if (selectedPort != null && portsToDockAt.getItems().contains(selectedPort)) {
+                    portsToDockAt.setValue(selectedPort);
+                }
+            });
+        }
+    }
+
 }

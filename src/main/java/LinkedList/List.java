@@ -56,11 +56,11 @@ public class List<T> implements Serializable {
         }
         return show;
     }
-    public String getDataAtIndex(int index) {
+    public <T> T getDataAtIndex(int index) {
         if (index < 0) {
             throw new IndexOutOfBoundsException("Index cannot be negative: " + index);
         }
-        Node<T> current = head;
+        Node<T> current = (Node<T>) head;
         int i = 0;
         while (current != null && i < index) {
             current = current.next;
@@ -70,11 +70,7 @@ public class List<T> implements Serializable {
             throw new IndexOutOfBoundsException("Index out of bounds: " + index);
         }
 
-        if (current.data == null) {
-            return null;
-        }
-
-        return current.data.toString();
+        return current.data;
     }
 
     public boolean isEmpty(){
@@ -90,7 +86,7 @@ public class List<T> implements Serializable {
         }
         return false;
     }
-    public int listSize(){
+    public int size(){
         int size = 0;
         Node<T> current = head;
         while (current != null){
@@ -108,6 +104,9 @@ public class List<T> implements Serializable {
         }
         return null;
     }
+
+
+
 
 
 

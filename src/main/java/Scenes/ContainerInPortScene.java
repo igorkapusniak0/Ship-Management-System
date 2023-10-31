@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -30,6 +31,7 @@ public class ContainerInPortScene extends Scene {
     private Ship ship;
     private Container container;
     public Pallet pallet;
+    private Pallet chosenPallet;
     private TableView<Pallet> palletTableView = new TableView();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -176,22 +178,46 @@ public class ContainerInPortScene extends Scene {
         if(container!=null) {
             scheduler.scheduleAtFixedRate(this::updatePalletView, 0, 1, TimeUnit.SECONDS);
         }
+        Label removePalletLabel = new Label("");
+        Button removePallet = new Button("Remove Pallet");
+        removePallet.setOnAction(event -> {
+            container.pallets.remove(chosenPallet);
+            removePalletLabel.setText("");
+        });
 
-//        palletTableView.setOnMouseClicked(mouseEvent -> {
-//            if(mouseEvent.getClickCount() ==2){
-//                Pallet selectedPallet = palletTableView.getSelectionModel().getSelectedItem();
-//                if(selectedPallet != null){
-//
-//                }
-//            }
-//        });
+        palletTableView.setOnMouseClicked(event -> {
+            if(event.getButton() == MouseButton.SECONDARY && event.getClickCount() ==2){
+                Pallet selectedPallet = palletTableView.getSelectionModel().getSelectedItem();
+                if(selectedPallet != null){
+                    chosenPallet = selectedPallet;
+                    chosenPallet = palletTableView.getSelectionModel().getSelectedItem();
+                    removePalletLabel.setText("Pallet: "+ chosenPallet.getDescription() + " is selected");
+                }
+            }
+        });
+
+        Button unselectPallet = new Button("Unselect Pallet");
+        unselectPallet.setOnAction(event -> {
+            chosenPallet = null;
+            removePalletLabel.setText("");
+        });
+
+        Button updateButton = new Button("Update Ship");
+        updateButton.setOnAction(event -> {
+            chosenPallet.setDescription(description.getText());
+            chosenPallet.setQuantity(Integer.parseInt(quantity.getText()));
+            chosenPallet.setVolume(Double.parseDouble(volume.getText()));
+            chosenPallet.setWeight(Double.parseDouble(weight.getText()));
+            chosenPallet.setValue(Double.parseDouble(value.getText()));
+            removePalletLabel.setText("");
+        });
 
         Button button = new Button("Return");
         button.setFont(new Font("Arial", 30));
         button.setOnAction(event -> mainScene.switchScene(portScene.individualPort));
 
         vBox.getChildren().add(displayName);
-        vBox1.getChildren().addAll(addPallet,palletDescription,description,desError,quantityofItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError,palletTableView,addPalletButton);
+        vBox1.getChildren().addAll(addPallet,palletDescription,description,desError,quantityofItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError,palletTableView,addPalletButton,removePallet,unselectPallet,updateButton,removePalletLabel);
 
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
@@ -210,18 +236,17 @@ public class ContainerInPortScene extends Scene {
             Platform.runLater(() -> {
                 Node<Pallet> current = this.container.pallets.head;
                 while (current != null) {
-                    if (!(palletTableView.getItems().contains(current.data))) {
-                        palletTableView.getItems().add(current.data);
+                    Pallet pallet = current.data;
+                    if (palletTableView.getItems().contains(pallet)) {
+                        int index = palletTableView.getItems().indexOf(pallet);
+                        palletTableView.getItems().set(index,pallet);
+                    }else{
+                        palletTableView.getItems().add(pallet);
                     }
                     current=current.next;
                 }
+                palletTableView.getItems().removeIf(pallet -> !this.container.pallets.contains(pallet));
             });
         }
     }
-
-
-
-
-
-
 }
