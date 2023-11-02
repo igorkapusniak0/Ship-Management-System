@@ -74,26 +74,33 @@ public class ShipScene extends Scene {
 
         TableColumn<Container, String> codeCont = new TableColumn<>("Container Code");
         TableColumn<Container, Integer> contSizeColumn = new TableColumn<>("Container Size (feet^3)");
+        TableColumn<Container, Double> totalPalletValue = new TableColumn<>("Total Value");
 
 
         codeCont.setMinWidth(200);
         contSizeColumn.setMinWidth(200);
+        totalPalletValue.setMinWidth(200);
 
-        containerListView.getColumns().addAll(codeCont,contSizeColumn);
+        containerListView.getColumns().addAll(codeCont,contSizeColumn,totalPalletValue);
 
         codeCont.setCellValueFactory(new PropertyValueFactory<>("contCode"));
         contSizeColumn.setCellValueFactory(new PropertyValueFactory<>("contSize"));
+        totalPalletValue.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
+
+        TextField searchCont = new TextField();
+        searchCont.setPromptText("Enter Container");
 
         if(ship!=null) {
-            scheduler.scheduleAtFixedRate(this::updateContainerListView, 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> updateContainerListView(searchCont.getText()), 0, 1, TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateComboBoxContainer, 0, 1, TimeUnit.SECONDS);
         }
+
 
         Button saveContButton = new Button("Add Container");
         saveContButton.setOnAction(event -> {
             int size = contSize.getValue();
             String code = Utilities.uniqueCodeGenerator();
-            Container newContainer = new Container(code,size,new List<Pallet>());
+            Container newContainer = new Container(code,size,new List<Pallet>(),this.port,this.ship);
             ship.addContainer(newContainer);
             System.out.println(newContainer);
         });
@@ -136,6 +143,8 @@ public class ShipScene extends Scene {
         Button updateButton = new Button("Update Container");
         updateButton.setOnAction(event -> {
             chosenContainer.setContSize(contSize.getValue());
+            chosenContainer.setTotalValue();
+            chosenContainer=null;
             removeContainerLabel.setText("");
         });
 
@@ -147,10 +156,10 @@ public class ShipScene extends Scene {
 
         Button button = new Button("Return");
         button.setFont(new Font("Arial", 30));
-        button.setOnAction(event -> mainScene.switchScene(portScene.individualPort));
+        button.setOnAction(event -> mainScene.switchScene(portScene));
 
         vBox.getChildren().addAll(displayName);
-        vBox1.getChildren().addAll(contSize,containerListView,saveContButton,removeButton,unselect,updateButton, portComboBox,moveButton,removeContainerLabel);
+        vBox1.getChildren().addAll(contSize,containerListView,searchCont,saveContButton,removeButton,unselect,updateButton, portComboBox,moveButton,removeContainerLabel);
 
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
@@ -163,21 +172,20 @@ public class ShipScene extends Scene {
 
         root.getChildren().addAll(borderPane);
     }
-    private void updateContainerListView() {
+    private void updateContainerListView(String container) {
         if (this.ship != null) {
             Platform.runLater(() -> {
+                containerListView.getItems().clear();
+                containerListView.getItems().removeIf(container1 -> !container1.toString().contains(container));
                 Node<Container> current = this.ship.containers.head;
                 while (current != null){
-                    Container container = current.data;
-                    if(containerListView.getItems().contains(current.data)) {
-                        int index = containerListView.getItems().indexOf(container);
-                        containerListView.getItems().set(index, container);
-                    }else{
-                        containerListView.getItems().add(container);
+                    if (current.data.toString().contains(container)){
+                        if (!containerListView.getItems().contains(current.data)){
+                            containerListView.getItems().add(current.data);
+                        }
                     }
                     current = current.next;
                 }
-                containerListView.getItems().removeIf(container -> !this.ship.containers.contains(container));
             });
         }
     }

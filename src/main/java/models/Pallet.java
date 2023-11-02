@@ -8,12 +8,16 @@ public class Pallet {
     private double value = 0;
     private double weight =0;
     private double volume =0;
-    public Pallet(String description,int quantity,double value,double weight,double volume){
+    private double totalValue;
+    private Container container;
+    public Pallet(String description,int quantity,double value,double weight,double volume,Container container){
         setDescription(description);
         setQuantity(quantity);
         setValue(value);
         setWeight(weight);
         setVolume(volume);
+        setContainer(container);
+        setTotalValue();
     }
 
     public void setDescription(String description){
@@ -61,8 +65,23 @@ public class Pallet {
             this.volume=0.1;
         }
     }
+
     public double getVolume(){
         return volume;
+    }
+
+    public void setContainer(Container container){
+        this.container = container;
+    }
+    public Container getContainer(){
+        return container;
+    }
+
+    public double getTotalValue(){
+        return totalValue;
+    }
+    public void setTotalValue(){
+        this.totalValue=quantity*value;
     }
 
     @Override

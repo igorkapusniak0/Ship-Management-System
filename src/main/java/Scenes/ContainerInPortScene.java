@@ -30,6 +30,7 @@ public class ContainerInPortScene extends Scene {
     private Port port;
     private Ship ship;
     private Container container;
+    private ShipScene shipScene;
     public Pallet pallet;
     private Pallet chosenPallet;
     private TableView<Pallet> palletTableView = new TableView();
@@ -46,6 +47,7 @@ public class ContainerInPortScene extends Scene {
         Label displayName;
         displayName = new Label();
         displayName.setFont(new Font("Arial", 50));
+
         if(port!=null) {
             displayName.setText(container.getContCode());
         }
@@ -100,21 +102,27 @@ public class ContainerInPortScene extends Scene {
         TableColumn<Pallet, String> descriptionColumn = new TableColumn<>("Pallet Description");
         TableColumn<Pallet, String> quantityColumn = new TableColumn<>("Quantity of Items");
         TableColumn<Pallet, String> valueColumn = new TableColumn<>("Pallet Value");
-        TableColumn<Pallet, String> weightColumn = new TableColumn<>("Pallet Value");
+        TableColumn<Pallet, String> weightColumn = new TableColumn<>("Pallet Weight");
         TableColumn<Pallet, String> volumeColumn = new TableColumn<>("Pallet Volume");
+        TableColumn<Pallet, String> totalValueColumn = new TableColumn<>("Pallet Total Value");
 
-        descriptionColumn.setMinWidth(500);
+        descriptionColumn.setMinWidth(300);
         quantityColumn.setMinWidth(100);
         valueColumn.setMinWidth(100);
         weightColumn.setMinWidth(100);
         volumeColumn.setMinWidth(100);
-        palletTableView.getColumns().addAll(descriptionColumn,quantityColumn,valueColumn,weightColumn,volumeColumn);
+        totalValueColumn.setMinWidth(100);
+        palletTableView.getColumns().addAll(descriptionColumn,quantityColumn,valueColumn,weightColumn,volumeColumn,totalValueColumn);
+
 
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
         weightColumn.setCellValueFactory(new PropertyValueFactory<>("weight"));
         volumeColumn.setCellValueFactory(new PropertyValueFactory<>("volume"));
+        totalValueColumn.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
+
+
 
         palletTableView.setPlaceholder(new Label("No Pallets Added Yet"));
 
@@ -170,13 +178,16 @@ public class ContainerInPortScene extends Scene {
                 Double weightValue = Double.parseDouble(weightText);
                 Double volumeValue = Double.parseDouble(volumeText);
 
-                Pallet newPallet = new Pallet(descriptionText, quantityValue, valueValue, weightValue, volumeValue);
+                Pallet newPallet = new Pallet(descriptionText, quantityValue, valueValue, weightValue, volumeValue,this.container);
                 container.addPallet(newPallet);
             }
         });
 
+        TextField searchPallet = new TextField();
+        searchPallet.setPromptText("Search Pallet");
+
         if(container!=null) {
-            scheduler.scheduleAtFixedRate(this::updatePalletView, 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> updatePalletView(searchPallet.getText()), 0, 1, TimeUnit.SECONDS);
         }
         Label removePalletLabel = new Label("");
         Button removePallet = new Button("Remove Pallet");
@@ -209,44 +220,50 @@ public class ContainerInPortScene extends Scene {
             chosenPallet.setVolume(Double.parseDouble(volume.getText()));
             chosenPallet.setWeight(Double.parseDouble(weight.getText()));
             chosenPallet.setValue(Double.parseDouble(value.getText()));
+            chosenPallet.setTotalValue();
             removePalletLabel.setText("");
+            chosenPallet=null;
         });
 
         Button button = new Button("Return");
         button.setFont(new Font("Arial", 30));
         button.setOnAction(event -> mainScene.switchScene(portScene.individualPort));
 
-        vBox.getChildren().add(displayName);
-        vBox1.getChildren().addAll(addPallet,palletDescription,description,desError,quantityofItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError,palletTableView,addPalletButton,removePallet,unselectPallet,updateButton,removePalletLabel);
+        VBox vBox2 = new VBox();
 
+        vBox.getChildren().add(displayName);
+        vBox1.getChildren().addAll(palletTableView,searchPallet,addPalletButton,removePallet,unselectPallet,updateButton,removePalletLabel);
+        vBox2.getChildren().addAll(addPallet,palletDescription,description,desError,quantityofItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError);
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
+
         hBox.setAlignment(Pos.BOTTOM_CENTER);
         hBox.setStyle(" -fx-padding: 40px;");
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(vBox);
-        borderPane.setCenter(vBox1);
+        borderPane.setLeft(vBox2);
+        borderPane.setRight(vBox1);
         borderPane.setBottom(hBox);
 
         root.getChildren().add(borderPane);
     }
-    private void updatePalletView() {
+    private void updatePalletView(String pallet) {
         if (this.container.pallets!=null) {
             Platform.runLater(() -> {
+                palletTableView.getItems().clear();
+                palletTableView.getItems().removeIf(pallet1 -> !pallet1.toString().contains(pallet));
                 Node<Pallet> current = this.container.pallets.head;
                 while (current != null) {
-                    Pallet pallet = current.data;
-                    if (palletTableView.getItems().contains(pallet)) {
-                        int index = palletTableView.getItems().indexOf(pallet);
-                        palletTableView.getItems().set(index,pallet);
-                    }else{
-                        palletTableView.getItems().add(pallet);
+                    if (current.data.toString().contains(pallet)) {
+                        if (!palletTableView.getItems().contains(current.data)) {
+                            palletTableView.getItems().add(current.data);
+                        }
                     }
                     current=current.next;
                 }
-                palletTableView.getItems().removeIf(pallet -> !this.container.pallets.contains(pallet));
             });
         }
     }
+
 }

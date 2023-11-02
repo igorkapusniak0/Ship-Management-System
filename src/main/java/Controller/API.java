@@ -16,6 +16,7 @@ public class API {
     private Port port;
     public List<Port> list = new List<>();
     public List<Ship> shipsAtSea = new List<>();
+    public double totalValue;
 
 
     public boolean addPort(Port port){
@@ -86,6 +87,33 @@ public class API {
         }
     }
 
+    public String listAlConts() {
+        Node<Container> current = list.head.data.ships.head.data.containers.head;
+        StringBuilder string = new StringBuilder();
+
+        while (current != null) {
+            string.append(current.data.getContCode()).append(", ");
+            current = current.next;
+        }
+
+        if (!string.isEmpty()) {
+            // Remove the trailing ", " from the string
+            string.setLength(string.length() - 2);
+            return string.toString();
+        } else {
+            return "No cotns found.";
+        }
+    }
+    public Port searchPort(String port){
+        Node<Port> current = list.head;
+        while (current!=null){
+            if(current.data.toString().contains(port)){
+                return current.data;
+            }
+            current= current.next;
+        }return null;
+    }
+
     public void moveShip(Port source, Port destination,Ship ship){
         destination.addShip(ship);
         source.removeShip(ship);
@@ -93,10 +121,12 @@ public class API {
     public void unloadContainer(Ship source, Port destination,Container container){
         destination.containersInPort.add(container);
         source.removeContainer(container);
+        container.setPort(destination);
     }
     public void loadContainer(Port source, Ship destination,Container container){
         destination.addContainer(container);
         source.containersInPort.remove(container);
+        container.setShip(destination);
     }
     public void moveShipFromSea(Port destination,Ship ship){
         destination.addShip(ship);
@@ -107,11 +137,38 @@ public class API {
         shipsAtSea.add(ship);
         source.ships.remove(ship);
     }
+    public String getContainerLocation(Container container){
+        if(container!=null){
+            System.out.println(container.getPort());
+            if (container.getPort() != null){
+                return "Port: " + container.getPort().getPortCountry();
+            } else if (container.getShip()!=null) {
+                return "Ship at Sea";
+            }
+            else {
+                return "Location Unknown";
+            }
 
 
+        }else {
+            return "Invalid Container";
+        }
+    }
+    public double getTotalValue(){
+        Node<Port> currentPort = list.head;
+        Node<Ship> currentShip = shipsAtSea.head;
+        double totalValue = 0;
 
-
-
-
+        while (currentShip!=null){
+            totalValue+=currentShip.data.getTotalValue();
+            currentShip=currentShip.next;
+        }
+        while (currentPort!=null){
+            totalValue+=currentPort.data.getTotalValue();
+            currentPort=currentPort.next;
+        }
+        this.totalValue=totalValue;
+        return totalValue;
+    }
 
 }

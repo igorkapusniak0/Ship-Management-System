@@ -1,5 +1,6 @@
 package models;
 import Controller.API;
+import LinkedList.Node;
 import utils.*;
 import LinkedList.List;
 
@@ -11,6 +12,7 @@ public class Port {
     public String portCode;
     public String portCountry;
     public List<Container> containersInPort = new List<>();
+    public double totalValue;
     public List<Ship> ships = new List<>();
 
     public Port(String portName, String country, String portCode, List ships, List containersInPort){
@@ -19,7 +21,7 @@ public class Port {
         setPortCode();
         setShips(ships);
         setContainersInPort(containersInPort);
-
+        setTotalValue();
     }
 
     public void setPortName(String portName){
@@ -52,6 +54,24 @@ public class Port {
     }
     public void removeContainer(Container container){
         containersInPort.remove(container);
+    }
+    public void setTotalValue(){
+        Node<Ship> currentShip = ships.head;
+        Node<Container> currentCont = containersInPort.head;
+        double totalValue = 0;
+
+        while (currentShip!=null){
+            totalValue+=currentShip.data.getTotalValue();
+            currentShip=currentShip.next;
+        }
+        while (currentCont!=null){
+            totalValue+=currentCont.data.getTotalValue();
+            currentCont=currentCont.next;
+        }
+        this.totalValue=totalValue;
+    }
+    public double getTotalValue(){
+        return totalValue;
     }
 
     public void addShip(Ship ship){
