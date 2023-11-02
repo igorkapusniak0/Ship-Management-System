@@ -4,7 +4,9 @@ import LinkedList.List;
 import LinkedList.Node;
 import utils.Utilities;
 
-public class Ship {
+import java.io.Serializable;
+
+public class Ship implements Serializable {
     public String shipName = "";
     public String shipCode = "";
     public String shipCountry = "";

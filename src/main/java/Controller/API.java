@@ -1,6 +1,8 @@
 package Controller;
 
 import LinkedList.Node;
+import Scenes.WelcomeScene;
+import javafx.application.Platform;
 import models.Container;
 import models.Pallet;
 import models.Port;
@@ -18,22 +20,26 @@ public class API {
     public double totalValue;
 
 
-    /*public void save(String fileName) {
-        try {
-            File file = new File(fileName);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
-            try (FileOutputStream fileOutputStream = new FileOutputStream(file);
-                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
-                objectOutputStream.writeObject(list); // Save the list of ports
-                objectOutputStream.writeObject(shipsAtSea); // Save the list of ships at sea
-            }
+    public void save(String fileName) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
+            objectOutputStream.writeObject(list); // Save the list of ports
+            objectOutputStream.writeObject(shipsAtSea); // Save the list of ships at sea
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    public void clear(String fileName) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
+            objectOutputStream.writeObject(null); // Save the list of ports
+            objectOutputStream.writeObject(null); // Save the list of ships at sea
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Load data from a file using Java serialization
     public void load(String fileName) {
         try (FileInputStream fileInputStream = new FileInputStream(fileName);
              ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
@@ -43,18 +49,6 @@ public class API {
             e.printStackTrace();
         }
     }
-
-    public void printSerializedData(String filePath) {
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(filePath))) {
-            Object deserializedObject = objectInputStream.readObject();
-            if (deserializedObject instanceof List<?>) {
-                List data = (List) deserializedObject;
-                System.out.println(data); // Replace with how you want to display your data
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }*/
 
     public boolean addPort(Port port){
         if(port.getPortCode()!=null){
@@ -266,14 +260,78 @@ public class API {
         Node<Port> current = list.head;
         while (current!=null){
             list.remove(current.data);
+            current.data=null;
             current= current.next;
         }
         Node<Ship> currentShip = shipsAtSea.head;
         while (currentShip!=null){
             shipsAtSea.remove(currentShip.data);
+            currentShip.data=null;
             currentShip=currentShip.next;
         }
     }
+
+    public void resetFacility2(){
+        Node<Port> current = list.head;
+        while (current!=null){
+            Port port = current.data;
+            Node<Ship> currentShip =current.data.ships.head;
+            while (currentShip!=null){
+                Ship ship = currentShip.data;
+                Node<Container> currentContainer= currentShip.data.containers.head;
+                while (currentContainer!=null){
+                    Container container = currentContainer.data;
+                    Node<Pallet> currentPallet = currentContainer.data.pallets.head;
+                    while (currentPallet!=null){
+                        Pallet pallet = currentPallet.data;
+                        pallet=null;
+                        currentPallet=currentPallet.next;
+                    }
+                    container=null;
+                    currentContainer=currentContainer.next;
+                }
+                ship=null;
+                currentShip=currentShip.next;
+
+            }
+            Node<Container> currentContainer = current.data.containersInPort.head;
+            while (currentContainer!=null){
+                Container container = currentContainer.data;
+                Node<Pallet> currentPallet = currentContainer.data.pallets.head;
+                while (currentPallet!=null){
+                    Pallet pallet = currentPallet.data;
+                    pallet=null;
+                    currentPallet=currentPallet.next;
+                }
+                container=null;
+                currentContainer=currentContainer.next;
+            }
+            port=null;
+            current= current.next;
+
+        }
+
+        Node<Ship> currentShip = shipsAtSea.head;
+        while (currentShip!=null){
+            Ship ship = currentShip.data;
+            Node<Container> currentContainer = currentShip.data.containers.head;
+            while (currentContainer!=null){
+                Container container = currentContainer.data;
+                Node<Pallet> currentPallet = currentContainer.data.pallets.head;
+                while (currentPallet!=null){
+                    Pallet pallet = currentPallet.data;
+                    pallet=null;
+                    currentPallet=currentPallet.next;
+                }
+                container=null;
+                currentContainer=currentContainer.next;
+            }
+            ship=null;
+            currentShip=currentShip.next;
+        }
+    }
+
+
 
 
 }

@@ -247,20 +247,21 @@ public class PortScene extends Scene {
             }
         });
 
-       /* Button save = new Button("Save");
+        Button save = new Button("Save");
         save.setOnAction(event -> {
             api.save("data.ser");
-            api.printSerializedData("data.ser");
 
         });
         Button read = new Button("Read");
         read.setOnAction(event -> {
             api.load("data.ser");
-        });*/
+        });
 
         Button reset = new Button("Reset Facility");
         reset.setOnAction(event -> {
         api.resetFacility();
+        api.resetFacility2();
+        api.clear("data.ser");
         });
 
         Button smartAddButton = new Button("Smart Add");
@@ -273,7 +274,6 @@ public class PortScene extends Scene {
             }else {
                 smartAddButton.setText("No containers Added");
             }
-
         });
 
 
@@ -295,7 +295,7 @@ public class PortScene extends Scene {
         borderPane.setRight(rightVBox);
         borderPane.setCenter(centerHBox);
         HBox hBox = new HBox(10);
-        hBox.getChildren().addAll(infoButton,smartAddButton,reset);
+        hBox.getChildren().addAll(infoButton,smartAddButton,reset,save,read);
         hBox.setAlignment(Pos.BASELINE_CENTER);
         borderPane.setBottom(hBox);
 

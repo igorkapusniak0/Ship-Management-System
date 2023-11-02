@@ -2,7 +2,9 @@ package models;
 
 import utils.Utilities;
 
-public class Pallet {
+import java.io.Serializable;
+
+public class Pallet implements Serializable {
     private String description = "";
     private int quantity = 0;
     private double value = 0;

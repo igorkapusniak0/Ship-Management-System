@@ -4,7 +4,9 @@ import LinkedList.List;
 import LinkedList.Node;
 import utils.Utilities;
 
-public class Container {
+import java.io.Serializable;
+
+public class Container implements Serializable {
     private String contCode = "";
     private int contSize = 0;
     public List<Pallet> pallets =new List();
