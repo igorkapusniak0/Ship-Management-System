@@ -4,7 +4,6 @@ import LinkedList.Node;
 import models.Container;
 import models.Pallet;
 import models.Port;
-
 import LinkedList.List;
 import models.Ship;
 
@@ -16,7 +15,46 @@ public class API {
     private Port port;
     public List<Port> list = new List<>();
     public List<Ship> shipsAtSea = new List<>();
+    public double totalValue;
 
+
+    /*public void save(String fileName) {
+        try {
+            File file = new File(fileName);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            try (FileOutputStream fileOutputStream = new FileOutputStream(file);
+                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
+                objectOutputStream.writeObject(list); // Save the list of ports
+                objectOutputStream.writeObject(shipsAtSea); // Save the list of ships at sea
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void load(String fileName) {
+        try (FileInputStream fileInputStream = new FileInputStream(fileName);
+             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+            list = (List<Port>) objectInputStream.readObject(); // Load the list of ports
+            shipsAtSea = (List<Ship>) objectInputStream.readObject(); // Load the list of ships at sea
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printSerializedData(String filePath) {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(filePath))) {
+            Object deserializedObject = objectInputStream.readObject();
+            if (deserializedObject instanceof List<?>) {
+                List data = (List) deserializedObject;
+                System.out.println(data); // Replace with how you want to display your data
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }*/
 
     public boolean addPort(Port port){
         if(port.getPortCode()!=null){
@@ -86,6 +124,33 @@ public class API {
         }
     }
 
+    public String listAlConts() {
+        Node<Container> current = list.head.data.ships.head.data.containers.head;
+        StringBuilder string = new StringBuilder();
+
+        while (current != null) {
+            string.append(current.data.getContCode()).append(", ");
+            current = current.next;
+        }
+
+        if (!string.isEmpty()) {
+            // Remove the trailing ", " from the string
+            string.setLength(string.length() - 2);
+            return string.toString();
+        } else {
+            return "No cotns found.";
+        }
+    }
+    public Port searchPort(String port){
+        Node<Port> current = list.head;
+        while (current!=null){
+            if(current.data.toString().contains(port)){
+                return current.data;
+            }
+            current= current.next;
+        }return null;
+    }
+
     public void moveShip(Port source, Port destination,Ship ship){
         destination.addShip(ship);
         source.removeShip(ship);
@@ -93,10 +158,12 @@ public class API {
     public void unloadContainer(Ship source, Port destination,Container container){
         destination.containersInPort.add(container);
         source.removeContainer(container);
+        container.setPort(destination);
     }
     public void loadContainer(Port source, Ship destination,Container container){
         destination.addContainer(container);
         source.containersInPort.remove(container);
+        container.setShip(destination);
     }
     public void moveShipFromSea(Port destination,Ship ship){
         destination.addShip(ship);
@@ -107,11 +174,106 @@ public class API {
         shipsAtSea.add(ship);
         source.ships.remove(ship);
     }
+    public String getContainerLocation(Container container){
+        if(container!=null){
+            System.out.println(container.getPort());
+            if (container.getPort() != null){
+                return "Port: " + container.getPort().getPortCountry();
+            } else if (container.getShip()!=null) {
+                return "Ship at Sea";
+            }
+            else {
+                return "Location Unknown";
+            }
 
 
+        }else {
+            return "Invalid Container";
+        }
+    }
+    public double getTotalValue(){
+        Node<Port> currentPort = list.head;
+        Node<Ship> currentShip = shipsAtSea.head;
+        double totalValue = 0;
 
+        while (currentShip!=null){
+            totalValue+=currentShip.data.getTotalValue();
+            currentShip=currentShip.next;
+        }
+        while (currentPort!=null){
+            totalValue+=currentPort.data.getTotalValue();
+            currentPort=currentPort.next;
+        }
+        this.totalValue=totalValue;
+        return totalValue;
+    }
 
+    public Container suitableContainer(){
+        Node<Port> currentPort = list.head;
+        Node<Ship> currentShipAtSea = shipsAtSea.head;
+        double lowestPercentage=Double.MAX_VALUE;
+        Container lowestPercentageContainer = null;
 
+        while (currentPort!=null){
+            Node<Container> currentContainer = currentPort.data.containersInPort.head;
+            while (currentContainer!=null){
+                Container container = currentContainer.data;
+                double percentage = container.percentageFull();
+
+                if (percentage<lowestPercentage){
+                    lowestPercentage = percentage;
+                    lowestPercentageContainer= container;
+                }
+                currentContainer = currentContainer.next;
+            }
+
+            Node<Ship> currentShip = currentPort.data.ships.head;
+            while (currentShip!=null){
+                Node<Container> containerOnShip = currentShip.data.containers.head;
+                while (containerOnShip!=null){
+                    Container container = currentContainer.data;
+                    double percentage = container.percentageFull();
+
+                    if (percentage<lowestPercentage){
+                        lowestPercentage = percentage;
+                        lowestPercentageContainer = container;
+                    }
+                    currentContainer = currentContainer.next;
+                }
+                currentShip = currentShip.next;
+            }
+            currentPort = currentPort.next;
+        }
+
+        while (currentShipAtSea!=null){
+            Node<Container> containerAtSea = currentShipAtSea.data.containers.head;
+            while (containerAtSea!=null){
+                Container container = containerAtSea.data;
+                double percentage = container.percentageFull();
+
+                if (percentage<lowestPercentage){
+                    lowestPercentage = percentage;
+                    lowestPercentageContainer = container;
+                }
+                containerAtSea = containerAtSea.next;
+            }
+            currentShipAtSea = currentShipAtSea.next;
+        }
+        return lowestPercentageContainer;
+    }
+
+    public void resetFacility(){
+        Node<Port> current = list.head;
+        while (current!=null){
+            list.remove(current.data);
+            current= current.next;
+        }
+        Node<Ship> currentShip = shipsAtSea.head;
+        while (currentShip!=null){
+            shipsAtSea.remove(currentShip.data);
+            currentShip=currentShip.next;
+        }
+    }
 
 
 }

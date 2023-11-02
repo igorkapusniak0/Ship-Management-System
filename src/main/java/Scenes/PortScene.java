@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 import models.Container;
 import models.Ship;
 import models.Port;
@@ -16,6 +17,7 @@ import utils.Utilities;
 import Controller.API;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,18 +32,22 @@ public class PortScene extends Scene {
     private List list;
     private TableView<Port> listView = new TableView();
     private TableView<Ship> shipsAtSeaTableView = new TableView();
+    private InfoScene infoScene;
     Pane window;
+    private SmartAddScene smartAddScene;
     private Port choosePort;
     private Ship chosenShip;
     private ComboBox<Port> portsToDockAt = new ComboBox<>();
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public PortScene(Pane root, MainScene mainScene) {
+    public PortScene(Pane root, MainScene mainScene) throws IOException {
         super(root);
         this.mainScene = mainScene;
         window = root;
         this.api = new API();
         BorderPane borderPane = new BorderPane();
+
+
 
         TextField nameField = new TextField();
         TextField countryField = new TextField();
@@ -69,16 +75,18 @@ public class PortScene extends Scene {
         TableColumn<Port, String> codeColumn = new TableColumn<>("Port Code");
         TableColumn<Port, String> nameColumn = new TableColumn<>("Port Name");
         TableColumn<Port, String> countryColumn = new TableColumn<>("Port Country");
+        TableColumn<Port, String> totalPortValueColumn = new TableColumn<>("Total Value");
 
         codeColumn.setMinWidth(100);
         nameColumn.setMinWidth(100);
         countryColumn.setMinWidth(100);
-
-        listView.getColumns().addAll(codeColumn,nameColumn,countryColumn);
+        totalPortValueColumn.setMinWidth(100);
+        listView.getColumns().addAll(codeColumn,nameColumn,countryColumn,totalPortValueColumn);
 
         codeColumn.setCellValueFactory(new PropertyValueFactory<>("portCode"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("portName"));
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("portCountry"));
+        totalPortValueColumn.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
 
         //-------------------------------------------------------------
 
@@ -86,17 +94,20 @@ public class PortScene extends Scene {
         TableColumn<Ship, String> shipNameColumn = new TableColumn<>("Ship Name");
         TableColumn<Ship, String> shipCountryColumn = new TableColumn<>("Ship Country");
         TableColumn<Ship, String> shipPictureColumn = new TableColumn<>("Ship Picture");
+        TableColumn<Ship, String> shipTotalValueColumn = new TableColumn<>("Total Value");
 
         shipCodeColumn.setMinWidth(100);
         shipNameColumn.setMinWidth(100);
         shipCountryColumn.setMinWidth(100);
         shipPictureColumn.setMinWidth(100);
-        shipsAtSeaTableView.getColumns().addAll(shipCodeColumn,shipNameColumn,shipCountryColumn,shipPictureColumn);
+        shipTotalValueColumn.setMinWidth(100);
+        shipsAtSeaTableView.getColumns().addAll(shipCodeColumn,shipNameColumn,shipCountryColumn,shipPictureColumn,shipTotalValueColumn);
 
         shipCodeColumn.setCellValueFactory(new PropertyValueFactory<>("shipCode"));
         shipNameColumn.setCellValueFactory(new PropertyValueFactory<>("shipName"));
         shipCountryColumn.setCellValueFactory(new PropertyValueFactory<>("shipCountry"));
         shipPictureColumn.setCellValueFactory(new PropertyValueFactory<>("shipPicture"));
+        shipTotalValueColumn.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
 
         portsToDockAt.setPromptText("Select Port:");
         shipsAtSeaTableView.setPlaceholder(new Label("No ships added yet"));
@@ -120,14 +131,24 @@ public class PortScene extends Scene {
         });
 
         //-------------------------------------------------------------
+        TextField searchPort = new TextField();
+        searchPort.setPromptText("Enter Port:");
+
+        TextField searchShip = new TextField();
+        searchShip.setPromptText("Enter Ship");
+
+        Button infoButton = new Button("Info Scene");
+        infoButton.setOnAction(event -> {
+            Pane individualPortRoot = new Pane();
+            infoScene = new InfoScene(individualPortRoot,mainScene,this,api);
+            mainScene.switchScene(infoScene);
+        });
 
         if(api.list.isEmpty()) {
-            scheduler.scheduleAtFixedRate(this::updateListView, 0, 1, TimeUnit.SECONDS);
-            scheduler.scheduleAtFixedRate(this::updateShipView, 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> updateSearchPort(searchPort.getText()), 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> updateShipView(searchShip.getText()), 0, 1, TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateComboBoxContainer, 0, 1, TimeUnit.SECONDS);
         }
-        scheduler.scheduleAtFixedRate(() -> {System.out.println(api.listAllPorts());}, 0, 1, TimeUnit.SECONDS);
-        scheduler.scheduleAtFixedRate(() -> {System.out.println(api.list.isEmpty());}, 0, 1, TimeUnit.SECONDS);
 
         Button saveButton = new Button("Add Port");
         Button button = new Button("Remove Port");
@@ -179,9 +200,9 @@ public class PortScene extends Scene {
         updateButton.setOnAction(event -> {
             choosePort.setPortName(nameField.getText());
             choosePort.setPortCountry(countryBox.getValue());
+            choosePort.setTotalValue();
             removeLabel.setText("");
         });
-
 
         Button dockShip = new Button("Move Ship to Port");
         dockShip.setOnAction(event -> {
@@ -226,18 +247,57 @@ public class PortScene extends Scene {
             }
         });
 
+       /* Button save = new Button("Save");
+        save.setOnAction(event -> {
+            api.save("data.ser");
+            api.printSerializedData("data.ser");
+
+        });
+        Button read = new Button("Read");
+        read.setOnAction(event -> {
+            api.load("data.ser");
+        });*/
+
+        Button reset = new Button("Reset Facility");
+        reset.setOnAction(event -> {
+        api.resetFacility();
+        });
+
+        Button smartAddButton = new Button("Smart Add");
+        smartAddButton.setOnAction(event -> {
+            Container smartAddContainer = api.suitableContainer();
+            if (smartAddContainer!=null){
+                Pane rootSmartAdd = new Pane();
+                smartAddScene = new SmartAddScene(rootSmartAdd,mainScene,this,api,smartAddContainer);
+                mainScene.switchScene(smartAddScene);
+            }else {
+                smartAddButton.setText("No containers Added");
+            }
+
+        });
+
+
+
         VBox leftVBox = new VBox(10);
         leftVBox.getChildren().addAll(portLabel, nameField, error, countryLabel, countryBox, error2, saveButton, button, updateButton, unselect, removeLabel);
 
         VBox rightVBox = new VBox(10);
-        rightVBox.getChildren().addAll(shipsAtSeaTableView, unselectShip,portsToDockAt,dockShip, removeShipLabel);
+        rightVBox.getChildren().addAll(shipsAtSeaTableView,searchShip, unselectShip,portsToDockAt,dockShip, removeShipLabel);
 
+        VBox rightVBox1 = new VBox(10);
+        rightVBox1.getChildren().addAll(listView,searchPort);
         HBox centerHBox = new HBox(100);
-        centerHBox.getChildren().addAll(listView);
+        centerHBox.getChildren().addAll(rightVBox,rightVBox1);
+
+        infoButton.setFont(new Font("Arial",30));
 
         borderPane.setLeft(leftVBox);
         borderPane.setRight(rightVBox);
         borderPane.setCenter(centerHBox);
+        HBox hBox = new HBox(10);
+        hBox.getChildren().addAll(infoButton,smartAddButton,reset);
+        hBox.setAlignment(Pos.BASELINE_CENTER);
+        borderPane.setBottom(hBox);
 
         leftVBox.setAlignment(Pos.TOP_LEFT);
         rightVBox.setAlignment(Pos.TOP_RIGHT);
@@ -248,40 +308,43 @@ public class PortScene extends Scene {
         root.getChildren().add(borderPane);
         root.setMinSize(1800, 800);
     }
-    private void updateListView() {
-        if (this.api.list != null) {
+
+
+    private void updateShipView(String ship) {
+        if (this.api.shipsAtSea!=null) {
             Platform.runLater(() -> {
-                Node<Port> current = this.api.list.head;
+                shipsAtSeaTableView.getItems().clear();
+                shipsAtSeaTableView.getItems().removeIf(ship1 -> !ship1.toString().contains(ship));
+                Node<Ship> current = this.api.shipsAtSea.head;
                 while (current != null) {
-                    Port port = current.data;
-                    if (listView.getItems().contains(port)) {
-                        int index = listView.getItems().indexOf(port);
-                        listView.getItems().set(index, port);
-                    } else {
-                        listView.getItems().add(port);
+                    current.data.setTotalValue();
+                    if (current.data.toString().contains(ship)) {
+                        if(!shipsAtSeaTableView.getItems().contains(current.data)){
+                            shipsAtSeaTableView.getItems().add(current.data);
+                        }
                     }
-                    current = current.next;
+                    System.out.println(current.data);
+                    current=current.next;
                 }
-                listView.getItems().removeIf(port -> !this.api.list.contains(port));
             });
         }
     }
 
-    private void updateShipView() {
-        if (this.api.shipsAtSea!=null) {
+    private void updateSearchPort(String port) {
+        if (this.api.list != null) {
             Platform.runLater(() -> {
-                Node<Ship> current = this.api.shipsAtSea.head;
+                listView.getItems().clear();
+                listView.getItems().removeIf(port1 -> !port1.toString().contains(port));
+                Node<Port> current = this.api.list.head;
                 while (current != null) {
-                    Ship ship = current.data;
-                    if (shipsAtSeaTableView.getItems().contains(ship)) {
-                        int index = shipsAtSeaTableView.getItems().indexOf(ship);
-                        shipsAtSeaTableView.getItems().set(index,ship);
-                    }else{
-                        shipsAtSeaTableView.getItems().add(ship);
+                    current.data.setTotalValue();
+                    if (current.data.toString().contains(port)) {
+                        if (!listView.getItems().contains(current.data)) {
+                            listView.getItems().add(current.data);
+                        }
                     }
-                    current=current.next;
+                    current = current.next;
                 }
-                shipsAtSeaTableView.getItems().removeIf(ship -> !this.api.shipsAtSea.contains(ship));
             });
         }
     }

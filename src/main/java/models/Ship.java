@@ -1,6 +1,7 @@
 package models;
 
 import LinkedList.List;
+import LinkedList.Node;
 import utils.Utilities;
 
 public class Ship {
@@ -8,6 +9,7 @@ public class Ship {
     public String shipCode = "";
     public String shipCountry = "";
     public String shipPicture;
+    private double totalValue;
     public List<Container> containers = new List<>();
 
     public Ship(String shipName, String shipCountry, String shipPicture, String shipCode){
@@ -15,7 +17,7 @@ public class Ship {
         setShipCountry(shipCountry);
         setShipPicture(shipPicture);
         setShipCode();
-
+        setTotalValue();
     }
 
     public void setShipName(String shipName){
@@ -37,6 +39,18 @@ public class Ship {
     public void setShipCode(){
         this.shipCode = Utilities.truncateString(shipCountry,3)+"-"+Utilities.uniqueCodeGenerator();
     }
+    public void setTotalValue(){
+        Node<Container> current = containers.head;
+        double totalValue = 0;
+        while (current!=null){
+            totalValue+=current.data.getTotalValue();
+            current=current.next;
+        }
+        this.totalValue=totalValue;
+    }
+    public double getTotalValue(){
+        return totalValue;
+    }
     public String getShipCode(){
         return shipCode;
     }
@@ -49,6 +63,7 @@ public class Ship {
 
     public void addContainer(Container container){
         containers.add(container);
+        setTotalValue();
     }
     public void removeContainer(Container container){
         containers.remove(container);

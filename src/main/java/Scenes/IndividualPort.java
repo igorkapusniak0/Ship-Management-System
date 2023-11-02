@@ -108,17 +108,20 @@ public class IndividualPort extends Scene {
         TableColumn<Ship, String> nameColumn = new TableColumn<>("Ship Name");
         TableColumn<Ship, String> countryColumn = new TableColumn<>("Ship Country");
         TableColumn<Ship, String> pictureColumn = new TableColumn<>("Ship Picture");
+        TableColumn<Ship, String> totalValueColumn = new TableColumn<>("Total Value");
 
         codeColumn.setMinWidth(100);
         nameColumn.setMinWidth(100);
         countryColumn.setMinWidth(100);
         pictureColumn.setMinWidth(100);
-        shipListView.getColumns().addAll(codeColumn,nameColumn,countryColumn,pictureColumn);
+        totalValueColumn.setMinWidth(100);
+        shipListView.getColumns().addAll(codeColumn,nameColumn,countryColumn,pictureColumn,totalValueColumn);
 
         codeColumn.setCellValueFactory(new PropertyValueFactory<>("shipCode"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("shipName"));
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("shipCountry"));
         pictureColumn.setCellValueFactory(new PropertyValueFactory<>("shipPicture"));
+        totalValueColumn.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
 
         shipListView.setPlaceholder(new Label("No ships added yet"));
 
@@ -126,20 +129,27 @@ public class IndividualPort extends Scene {
 
         TableColumn<Container, String> codeCont = new TableColumn<>("Container Code");
         TableColumn<Container, Integer> contSizeColumn = new TableColumn<>("Container Size (feet^3)");
+        TableColumn<Container, Double> totalPalletValue = new TableColumn<>("Total Value");
 
 
         codeCont.setMinWidth(200);
         contSizeColumn.setMinWidth(200);
+        totalPalletValue.setMinWidth(200);
 
-        containerListView.getColumns().addAll(codeCont,contSizeColumn);
+        containerListView.getColumns().addAll(codeCont,contSizeColumn,totalPalletValue);
 
         codeCont.setCellValueFactory(new PropertyValueFactory<>("contCode"));
         contSizeColumn.setCellValueFactory(new PropertyValueFactory<>("contSize"));
+        totalPalletValue.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
 
+        TextField searchShip = new TextField();
+        searchShip.setPromptText("Search Ship");
+        TextField searchCont = new TextField();
+        searchCont.setPromptText("Search Container");
 
         if(port!=null&&port.ships!=null&&port.containersInPort!=null) {
-            scheduler.scheduleAtFixedRate(this::updateShipListView, 0, 1, TimeUnit.SECONDS);
-            scheduler.scheduleAtFixedRate(this::updateContainerListView, 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> updateShipListView(searchShip.getText()), 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> updateContainerListView(searchCont.getText()), 0, 1, TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateComboBoxShip,0,1,TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateComboBoxContainer,0,1,TimeUnit.SECONDS);
         }
@@ -154,7 +164,7 @@ public class IndividualPort extends Scene {
                 error.setText("Container Size cannot be empty");
             }else {
                 if(!containerCodeExists){
-                    Container newContainer = new Container(code,size,new List<Pallet>());
+                    Container newContainer = new Container(code,size,new List<Pallet>(),this.port,this.ship);
                     port.addContainer(newContainer);
                     error.setText("");
                 }
@@ -232,8 +242,6 @@ public class IndividualPort extends Scene {
         });
 
 
-
-
         Button loadContainer = new Button("Move Container Onto Ship");
         loadContainer.setOnAction(event -> {
             api.loadContainer(port,shipsToLoad.getValue(),chosenContainer);
@@ -280,6 +288,7 @@ public class IndividualPort extends Scene {
         Button updateContButton = new Button("Update Container");
         updateContButton.setOnAction(event -> {
             chosenContainer.setContSize(contSize.getValue());
+            chosenContainer.setTotalValue();
             removeContLabel.setText("");
         });
 
@@ -293,6 +302,7 @@ public class IndividualPort extends Scene {
             chosenShip.setShipName(shipName.getText());
             chosenShip.setShipCountry(shipCountry.getValue());
             chosenShip.setShipPicture(shipPicture.getText());
+            chosenShip.setTotalValue();
             removeShipLabel.setText("");
         });
 
@@ -303,9 +313,9 @@ public class IndividualPort extends Scene {
 
         vBox.getChildren().addAll(showPortName);
 
-        vBox1.getChildren().addAll(addShip,shipNameLabel,shipName, error1,shipPictureLabel,shipPicture, error3,shipCountryLabel,shipCountry, error2,shipListView ,saveShipButton,removeShip,updateShipButton,unselectShip,shipsToDock,moveShipToDifPort,undockShip,removeShipLabel);
+        vBox1.getChildren().addAll(addShip,shipNameLabel,shipName, error1,shipPictureLabel,shipPicture, error3,shipCountryLabel,shipCountry, error2,shipListView,searchShip ,saveShipButton,removeShip,updateShipButton,unselectShip,shipsToDock,moveShipToDifPort,undockShip,removeShipLabel);
 
-        vBox2.getChildren().addAll(addContainer,contSizeLabel,contSize,error,containerListView,saveContButton,removeContainer,unselectContainer,updateContButton,shipsToLoad,loadContainer,removeContLabel);
+        vBox2.getChildren().addAll(addContainer,contSizeLabel,contSize,error,containerListView,searchCont,saveContButton,removeContainer,unselectContainer,updateContButton,shipsToLoad,loadContainer,removeContLabel);
 
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
@@ -324,39 +334,39 @@ public class IndividualPort extends Scene {
 
 
     }
-    private void updateShipListView() {
+    private void updateShipListView(String ship) {
         if (this.port != null && this.port.ships != null) {
             Platform.runLater(() -> {
+                shipListView.getItems().clear();
+                shipListView.getItems().removeIf(ship1 -> !ship1.toString().contains(ship));
                 Node<Ship> current = this.port.ships.head;
-                while (current != null){
-                    Ship ship = current.data;
-                    if(shipListView.getItems().contains(current.data)) {
-                        int index = shipListView.getItems().indexOf(ship);
-                        shipListView.getItems().set(index,ship);
-                    }else{
-                        shipListView.getItems().add(ship);
+                while (current != null) {
+                    current.data.setTotalValue();
+                    if (current.data.toString().contains(ship)) {
+                        if (!shipListView.getItems().contains(current.data)) {
+                            shipListView.getItems().add(current.data);
+                        }
                     }
                     current = current.next;
                 }
-                shipListView.getItems().removeIf(ship -> !this.port.ships.contains(ship));
             });
         }
     }
-    private void updateContainerListView() {
+    private void updateContainerListView(String cont) {
         if (this.port != null && this.port.containersInPort != null) {
             Platform.runLater(() -> {
+                containerListView.getItems().clear();
+                containerListView.getItems().removeIf(container1 -> !container1.toString().contains(cont));
                 Node<Container> current = this.port.containersInPort.head;
                 while (current != null){
-                    Container container = current.data;
-                    if(containerListView.getItems().contains(current.data)) {
-                        int index = containerListView.getItems().indexOf(container);
-                        containerListView.getItems().set(index, container);
-                    }else{
-                        containerListView.getItems().add(container);
+                    current.data.setTotalValue();
+                    if (current.data.toString().contains(cont)) {
+                        if (!containerListView.getItems().contains(current.data)) {
+                            containerListView.getItems().add(current.data);
+                        }
                     }
                     current = current.next;
                 }
-                containerListView.getItems().removeIf(container -> !this.port.containersInPort.contains(container));
             });
         }
     }

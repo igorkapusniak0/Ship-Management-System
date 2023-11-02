@@ -15,6 +15,7 @@ import models.Port;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class MainScene extends Application {
 
@@ -28,7 +29,7 @@ public class MainScene extends Application {
         launch();
     }
     @Override
-    public void start(Stage primaryStage) throws FileNotFoundException {
+    public void start(Stage primaryStage) throws IOException {
         this.primaryStage = primaryStage;
 
         Pane root1 = new Pane();
