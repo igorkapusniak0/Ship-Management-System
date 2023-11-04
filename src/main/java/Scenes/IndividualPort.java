@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class IndividualPort extends Scene {
     private PortScene portScene;
@@ -53,7 +54,7 @@ public class IndividualPort extends Scene {
         showPortName.setFont(new Font("Arial", 50));
 
         if(port!=null) {
-            showPortName.setText(port.getPortName());
+            showPortName.setText("Port: "+port.getPortName());
         }
 
 
@@ -147,14 +148,24 @@ public class IndividualPort extends Scene {
         TextField searchCont = new TextField();
         searchCont.setPromptText("Search Container");
 
+
+        Consumer<Container> setContTotalValueAction = Container::setTotalValue;
+        Consumer<Ship> setShipTotalValueAction = Ship::setTotalValue;
         if(port!=null&&port.ships!=null&&port.containersInPort!=null) {
-            scheduler.scheduleAtFixedRate(() -> updateShipListView(searchShip.getText()), 0, 1, TimeUnit.SECONDS);
-            scheduler.scheduleAtFixedRate(() -> updateContainerListView(searchCont.getText()), 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> {
+                api.updateListView(searchShip.getText(),shipListView,this.port.ships.head,setShipTotalValueAction);
+                this.port.ships.head.data.setTotalValue();
+            }, 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> {
+                api.updateListView(searchCont.getText(),containerListView,this.port.containersInPort.head,setContTotalValueAction);
+                this.port.containersInPort.head.data.setTotalValue();
+            }, 0, 1, TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateComboBoxShip,0,1,TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateComboBoxContainer,0,1,TimeUnit.SECONDS);
         }
 
         Button saveContButton = new Button("Add Container");
+
         saveContButton.setOnAction(event -> {
             Integer size = contSize.getValue();
             String code = Utilities.uniqueCodeGenerator();
@@ -179,16 +190,19 @@ public class IndividualPort extends Scene {
         Button removeContainer = new Button("Remove Container");
 
         removeContainer.setOnAction(event -> {
-            System.out.println(chosenContainer);
-            port.removeContainer(chosenContainer);
-            removeContLabel.setText("");
+            if (chosenContainer!=null){
+                port.removeContainer(chosenContainer);
+                removeContLabel.setText("");
+            }
         });
 
         Label removeShipLabel = new Label("");
         Button removeShip = new Button("Remove Ship");
         removeShip.setOnAction(event -> {
-            port.removeShip(chosenShip);
-            removeShipLabel.setText("");
+            if (chosenShip!=null){
+                port.removeShip(chosenShip);
+                removeShipLabel.setText("");
+            }
         });
 
         containerListView.setOnMouseClicked(e3 -> {
@@ -206,7 +220,9 @@ public class IndividualPort extends Scene {
                 }
             }else if (e3.getButton() == MouseButton.SECONDARY && e3.getClickCount() == 2){
                 chosenContainer = containerListView.getSelectionModel().getSelectedItem();
-                removeContLabel.setText("Container: "+chosenContainer.getContCode() + " is selected");
+                if (chosenContainer!=null){
+                    removeContLabel.setText("Container: "+chosenContainer.getContCode() + " is selected");
+                }
             }
         });
 
@@ -237,18 +253,24 @@ public class IndividualPort extends Scene {
                 }
             }else if (e3.getButton() == MouseButton.SECONDARY && e3.getClickCount() == 2){
                 chosenShip = shipListView.getSelectionModel().getSelectedItem();
-                removeShipLabel.setText("Ship: "+chosenShip.getShipName() + " is selected");
+                if (chosenShip!=null){
+                    removeShipLabel.setText("Ship: "+chosenShip.getShipName() + " is selected");
+                }
             }
         });
 
 
         Button loadContainer = new Button("Move Container Onto Ship");
         loadContainer.setOnAction(event -> {
-            api.loadContainer(port,shipsToLoad.getValue(),chosenContainer);
+            if (shipsToLoad!=null&&chosenContainer!=null){
+                api.loadContainer(port,shipsToLoad.getValue(),chosenContainer);
+            }
         });
         Button moveShipToDifPort = new Button("Move Container Onto Port");
         moveShipToDifPort.setOnAction(event -> {
-            api.moveShip(port,shipsToDock.getValue(),chosenShip);
+            if (shipsToDock!=null&&chosenShip!=null){
+                api.moveShip(port,shipsToDock.getValue(),chosenShip);
+            }
         });
 
         Button saveShipButton = new Button("Add Ship");
@@ -287,23 +309,29 @@ public class IndividualPort extends Scene {
         });
         Button updateContButton = new Button("Update Container");
         updateContButton.setOnAction(event -> {
-            chosenContainer.setContSize(contSize.getValue());
-            chosenContainer.setTotalValue();
-            removeContLabel.setText("");
+            if (chosenContainer!=null){
+                chosenContainer.setContSize(contSize.getValue());
+                 chosenContainer.setTotalValue();
+                removeContLabel.setText("");
+            }
         });
 
         Button undockShip = new Button("UnDock Ship");
         undockShip.setOnAction(event -> {
-            api.moveShipToSea(port,chosenShip);
+            if (chosenShip!=null){
+                api.moveShipToSea(port,chosenShip);
+            }
         });
 
         Button updateShipButton = new Button("Update Ship");
         updateShipButton.setOnAction(event -> {
-            chosenShip.setShipName(shipName.getText());
-            chosenShip.setShipCountry(shipCountry.getValue());
-            chosenShip.setShipPicture(shipPicture.getText());
-            chosenShip.setTotalValue();
-            removeShipLabel.setText("");
+            if (chosenShip!=null){
+                chosenShip.setShipName(shipName.getText());
+                chosenShip.setShipCountry(shipCountry.getValue());
+                chosenShip.setShipPicture(shipPicture.getText());
+                chosenShip.setTotalValue();
+                removeShipLabel.setText("");
+            }
         });
 
 
@@ -334,7 +362,7 @@ public class IndividualPort extends Scene {
 
 
     }
-    private void updateShipListView(String ship) {
+    /*private void updateShipListView(String ship) {
         if (this.port != null && this.port.ships != null) {
             Platform.runLater(() -> {
                 shipListView.getItems().clear();
@@ -369,7 +397,7 @@ public class IndividualPort extends Scene {
                 }
             });
         }
-    }
+    }*/
 
     private void updateComboBoxShip() {
         if (this.port != null && this.port.ships != null) {

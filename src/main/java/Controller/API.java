@@ -1,8 +1,9 @@
 package Controller;
 
 import LinkedList.Node;
-import Scenes.WelcomeScene;
 import javafx.application.Platform;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableView;
 import models.Container;
 import models.Pallet;
 import models.Port;
@@ -12,6 +13,7 @@ import models.Ship;
 
 
 import java.io.*;
+import java.util.function.Consumer;
 
 public class API {
     private Port port;
@@ -23,8 +25,8 @@ public class API {
     public void save(String fileName) {
         try (FileOutputStream fileOutputStream = new FileOutputStream(fileName);
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
-            objectOutputStream.writeObject(list); // Save the list of ports
-            objectOutputStream.writeObject(shipsAtSea); // Save the list of ships at sea
+            objectOutputStream.writeObject(list);
+            objectOutputStream.writeObject(shipsAtSea);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -32,19 +34,19 @@ public class API {
     public void clear(String fileName) {
         try (FileOutputStream fileOutputStream = new FileOutputStream(fileName);
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
-            objectOutputStream.writeObject(null); // Save the list of ports
-            objectOutputStream.writeObject(null); // Save the list of ships at sea
+            objectOutputStream.writeObject(null);
+            objectOutputStream.writeObject(null);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Load data from a file using Java serialization
+
     public void load(String fileName) {
         try (FileInputStream fileInputStream = new FileInputStream(fileName);
              ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
-            list = (List<Port>) objectInputStream.readObject(); // Load the list of ports
-            shipsAtSea = (List<Ship>) objectInputStream.readObject(); // Load the list of ships at sea
+            list = (List<Port>) objectInputStream.readObject();
+            shipsAtSea = (List<Ship>) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -110,7 +112,6 @@ public class API {
         }
 
         if (!string.isEmpty()) {
-            // Remove the trailing ", " from the string
             string.setLength(string.length() - 2);
             return string.toString();
         } else {
@@ -128,7 +129,6 @@ public class API {
         }
 
         if (!string.isEmpty()) {
-            // Remove the trailing ", " from the string
             string.setLength(string.length() - 2);
             return string.toString();
         } else {
@@ -175,12 +175,9 @@ public class API {
                 return "Port: " + container.getPort().getPortCountry();
             } else if (container.getShip()!=null) {
                 return "Ship at Sea";
-            }
-            else {
+            } else {
                 return "Location Unknown";
             }
-
-
         }else {
             return "Invalid Container";
         }
@@ -331,6 +328,25 @@ public class API {
         }
     }
 
+
+    public <T> void updateListView(String filter, TableView tableView, Node<T> head, Consumer setTotalValue) {
+        if (tableView != null && head != null) {
+            Platform.runLater(() -> {
+                tableView.getItems().clear();
+                tableView.getItems().removeIf(container1 -> !container1.toString().contains(filter));
+                Node<T> current = head;
+                while (current != null){
+                    setTotalValue.accept(current.data);
+                    if (current.data.toString().contains(filter)) {
+                        if (!tableView.getItems().contains(current.data)) {
+                            tableView.getItems().add(current.data);
+                        }
+                    }
+                    current = current.next;
+                }
+            });
+        }
+    }
 
 
 

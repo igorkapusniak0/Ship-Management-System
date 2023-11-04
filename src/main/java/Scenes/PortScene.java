@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class PortScene extends Scene {
     public API api;
@@ -144,9 +145,11 @@ public class PortScene extends Scene {
             mainScene.switchScene(infoScene);
         });
 
+        Consumer<Port> setPortTotalValueAction = Port::setTotalValue;
+        Consumer<Ship> setShipTotalValueAction = Ship::setTotalValue;
         if(api.list.isEmpty()) {
-            scheduler.scheduleAtFixedRate(() -> updateSearchPort(searchPort.getText()), 0, 1, TimeUnit.SECONDS);
-            scheduler.scheduleAtFixedRate(() -> updateShipView(searchShip.getText()), 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> api.updateListView(searchPort.getText(),listView,this.api.list.head,setPortTotalValueAction), 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> api.updateListView(searchShip.getText(),shipsAtSeaTableView,this.api.shipsAtSea.head,setShipTotalValueAction), 0, 1, TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateComboBoxContainer, 0, 1, TimeUnit.SECONDS);
         }
 
@@ -187,8 +190,10 @@ public class PortScene extends Scene {
 
         Label removeLabel = new Label("");
         button.setOnAction(e -> {
-            api.list.remove(choosePort);
-            removeLabel.setText("");
+            if (choosePort!=null) {
+                api.list.remove(choosePort);
+                removeLabel.setText("");
+            }
         });
 
         Button unselect = new Button("Unselect Port");
@@ -198,16 +203,19 @@ public class PortScene extends Scene {
         });
         Button updateButton = new Button("Update");
         updateButton.setOnAction(event -> {
-            choosePort.setPortName(nameField.getText());
-            choosePort.setPortCountry(countryBox.getValue());
-            choosePort.setTotalValue();
-            removeLabel.setText("");
+            if (choosePort!=null) {
+                choosePort.setPortName(nameField.getText());
+                choosePort.setPortCountry(countryBox.getValue());
+                choosePort.setTotalValue();
+                removeLabel.setText("");
+            }
         });
 
         Button dockShip = new Button("Move Ship to Port");
         dockShip.setOnAction(event -> {
-            api.moveShipFromSea(portsToDockAt.getValue(),chosenShip);
-
+            if (portsToDockAt!=null&&chosenShip!=null) {
+                api.moveShipFromSea(portsToDockAt.getValue(), chosenShip);
+            }
         });
         shipsAtSeaTableView.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
@@ -224,7 +232,9 @@ public class PortScene extends Scene {
                 }
             } else if (event.getButton() == MouseButton.SECONDARY && event.getClickCount() == 2) {
                 chosenShip = shipsAtSeaTableView.getSelectionModel().getSelectedItem();
-                removeShipLabel.setText(chosenShip.shipName + " is Selected");
+                if (chosenShip!=null) {
+                    removeShipLabel.setText(chosenShip.shipName + " is Selected");
+                }
             }
         });
 
@@ -243,7 +253,9 @@ public class PortScene extends Scene {
                 }
             } else if (event.getButton() == MouseButton.SECONDARY && event.getClickCount() == 2) {
                 choosePort = listView.getSelectionModel().getSelectedItem();
-                removeLabel.setText(choosePort.portName + " is Selected");
+                if (choosePort!=null){
+                    removeLabel.setText(choosePort.portName + " is Selected");
+                }
             }
         });
 
@@ -261,7 +273,7 @@ public class PortScene extends Scene {
         reset.setOnAction(event -> {
         api.resetFacility();
         api.resetFacility2();
-        api.clear("data.ser");
+        api.clear("data.ser ");
         });
 
         Button smartAddButton = new Button("Smart Add");
@@ -294,10 +306,10 @@ public class PortScene extends Scene {
         borderPane.setLeft(leftVBox);
         borderPane.setRight(rightVBox);
         borderPane.setCenter(centerHBox);
-        HBox hBox = new HBox(10);
-        hBox.getChildren().addAll(infoButton,smartAddButton,reset,save,read);
-        hBox.setAlignment(Pos.BASELINE_CENTER);
-        borderPane.setBottom(hBox);
+        VBox vBox3 = new VBox(10);
+        vBox3.getChildren().addAll(smartAddButton,reset,save,read,infoButton);
+        vBox3.setAlignment(Pos.BOTTOM_CENTER);
+        borderPane.setBottom(vBox3);
 
         leftVBox.setAlignment(Pos.TOP_LEFT);
         rightVBox.setAlignment(Pos.TOP_RIGHT);

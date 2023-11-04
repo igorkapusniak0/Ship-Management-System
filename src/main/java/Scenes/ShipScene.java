@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class ShipScene extends Scene {
     private PortScene portScene;
@@ -48,8 +49,8 @@ public class ShipScene extends Scene {
         Label displayName;
         displayName = new Label();
         displayName.setFont(new Font("Arial", 50));
-        if(port!=null) {
-            displayName.setText(ship.shipName);
+        if(ship!=null) {
+            displayName.setText("Ship: "+ship.shipName);
         }
 
 
@@ -90,26 +91,37 @@ public class ShipScene extends Scene {
         TextField searchCont = new TextField();
         searchCont.setPromptText("Enter Container");
 
+
+        Consumer<Container> setContTotalValueAction = Container::setTotalValue;
         if(ship!=null) {
-            scheduler.scheduleAtFixedRate(() -> updateContainerListView(searchCont.getText()), 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> {
+                api.updateListView(searchCont.getText(),containerListView,this.ship.containers.head,setContTotalValueAction);
+            }, 0, 1, TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateComboBoxContainer, 0, 1, TimeUnit.SECONDS);
         }
 
+        Label error = new Label("");
 
         Button saveContButton = new Button("Add Container");
         saveContButton.setOnAction(event -> {
-            int size = contSize.getValue();
+            Integer size = contSize.getValue();
             String code = Utilities.uniqueCodeGenerator();
-            Container newContainer = new Container(code,size,new List<Pallet>(),this.port,this.ship);
-            ship.addContainer(newContainer);
-            System.out.println(newContainer);
+            if (size==null){
+                error.setText("Container Size cannot be empty");
+            }else {
+                Container newContainer = new Container(code,size,new List<Pallet>(),this.port,this.ship);
+                ship.addContainer(newContainer);
+                error.setText("");
+            }
         });
 
         Label removeContainerLabel = new Label("");
         Button removeButton = new Button("Remove Container");
         removeButton.setOnAction(event -> {
-            ship.removeContainer(chosenContainer);
-            removeContainerLabel.setText("");
+            if (chosenContainer!=null){
+                ship.removeContainer(chosenContainer);
+                removeContainerLabel.setText("");
+            }
         });
 
         portComboBox.setPromptText("Select Port:");
@@ -127,25 +139,29 @@ public class ShipScene extends Scene {
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);
                     }
-                } else {
-                    System.out.println("ship is null");
                 }
             } else if (e3.getButton() == MouseButton.SECONDARY && e3.getClickCount() == 2) {
                 chosenContainer = containerListView.getSelectionModel().getSelectedItem();
-                removeContainerLabel.setText("Container: "+chosenContainer.getContCode() + " is selected");
+                if (chosenContainer!=null){
+                    removeContainerLabel.setText("Container: "+chosenContainer.getContCode() + " is selected");
+                }
             }
         });
         Button moveButton = new Button("Move Container to Port");
         moveButton.setOnAction(event -> {
-            api.unloadContainer(ship,portComboBox.getValue(),chosenContainer);
+            if (portComboBox!=null&&chosenContainer!=null) {
+                api.unloadContainer(ship, portComboBox.getValue(), chosenContainer);
+            }
         });
 
         Button updateButton = new Button("Update Container");
         updateButton.setOnAction(event -> {
-            chosenContainer.setContSize(contSize.getValue());
-            chosenContainer.setTotalValue();
-            chosenContainer=null;
-            removeContainerLabel.setText("");
+            if (chosenContainer!=null){
+                chosenContainer.setContSize(contSize.getValue());
+                chosenContainer.setTotalValue();
+                chosenContainer=null;
+                removeContainerLabel.setText("");
+            }
         });
 
         Button unselect = new Button("Unselect Container");
@@ -159,7 +175,7 @@ public class ShipScene extends Scene {
         button.setOnAction(event -> mainScene.switchScene(portScene));
 
         vBox.getChildren().addAll(displayName);
-        vBox1.getChildren().addAll(contSize,containerListView,searchCont,saveContButton,removeButton,unselect,updateButton, portComboBox,moveButton,removeContainerLabel);
+        vBox1.getChildren().addAll(contSize,error,containerListView,searchCont,saveContButton,removeButton,unselect,updateButton, portComboBox,moveButton,removeContainerLabel);
 
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);

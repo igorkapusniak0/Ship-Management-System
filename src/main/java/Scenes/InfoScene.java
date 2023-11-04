@@ -93,7 +93,6 @@ public class InfoScene extends Scene {
 
         Label selectedCont = new Label("");
 
-
         allContainers.setOnMouseClicked(e3 -> {
             if (e3.getButton() == MouseButton.PRIMARY && e3.getClickCount() == 2) {
                 Container selectedContainer = allContainers.getSelectionModel().getSelectedItem();
@@ -109,7 +108,9 @@ public class InfoScene extends Scene {
                 }
             }else if (e3.getButton() == MouseButton.SECONDARY && e3.getClickCount() == 2){
                 chosenContainer = allContainers.getSelectionModel().getSelectedItem();
-                selectedCont.setText("Container: "+ chosenContainer.getContCode() + " is selected");
+                if (chosenContainer!=null){
+                    selectedCont.setText("Container: "+ chosenContainer.getContCode() + " is selected");
+                }
             }
         });
         Button unselectContainer = new Button("Unselect Container");
@@ -133,28 +134,17 @@ public class InfoScene extends Scene {
                 }
             }else if (e3.getButton() == MouseButton.SECONDARY && e3.getClickCount() == 2){
                 chosenPallet = allPallets.getSelectionModel().getSelectedItem();
-                removePalletLabel.setText("Pallet: "+ chosenPallet.getDescription() + " is selected");
-            }
-        });
-
-
-
-        /*allPallets.setOnMouseClicked(event -> {
-            if(event.getButton() == MouseButton.SECONDARY && event.getClickCount() ==2){
-                Pallet selectedPallet = allPallets.getSelectionModel().getSelectedItem();
-                if(selectedPallet != null){
-                    chosenPallet = selectedPallet;
-                    chosenPallet = allPallets.getSelectionModel().getSelectedItem();
+                if (chosenPallet!=null){
                     removePalletLabel.setText("Pallet: "+ chosenPallet.getDescription() + " is selected");
                 }
             }
-        });*/
+        });
+
         Button unselectPallet = new Button("Unselect Pallet");
         unselectPallet.setOnAction(event -> {
             chosenPallet = null;
             removePalletLabel.setText("");
         });
-
 
 
         Button button = new Button("Return");
@@ -179,7 +169,6 @@ public class InfoScene extends Scene {
                 allPallets.getItems().clear();
                 allContainers.getItems().clear();
                 totalValue.setText("The Total Value of all Pallets is: " + this.api.getTotalValue());
-                // Iterate through all ports
                 Node<Port> portNode = api.list.head;
                 while (portNode != null) {
                     Port currentPort = portNode.data;
@@ -201,16 +190,13 @@ public class InfoScene extends Scene {
                         }
                         shipNode =shipNode.next;
                     }
-                    // Iterate through containers in the port
                     Node<Container> containerNode = currentPort.containersInPort.head;
                     while (containerNode != null) {
                         Container currentContainer = containerNode.data;
                         allContainers.getItems().addAll(currentContainer);
-                        // Iterate through pallets in the container
                         Node<Pallet> palletNode = currentContainer.pallets.head;
                         while (palletNode != null) {
                             Pallet currentPallet = palletNode.data;
-                            // Add pallet to the TableView
                             allPallets.getItems().add(currentPallet);
                             palletNode = palletNode.next;
                         }
@@ -218,21 +204,16 @@ public class InfoScene extends Scene {
                     }
                     portNode = portNode.next;
                 }
-
-                // Iterate through ships at sea
                 Node<Ship> shipNode = api.shipsAtSea.head;
                 while (shipNode != null) {
                     Ship currentShip = shipNode.data;
-                    // Iterate through containers on the ship
                     Node<Container> containerNode = currentShip.containers.head;
                     while (containerNode != null) {
                         Container currentContainer = containerNode.data;
                         allContainers.getItems().addAll(currentContainer);
-                        // Iterate through pallets in the container
                         Node<Pallet> palletNode = currentContainer.pallets.head;
                         while (palletNode != null) {
                             Pallet currentPallet = palletNode.data;
-                            // Add pallet to the TableView
                             allPallets.getItems().add(currentPallet);
                             palletNode = palletNode.next;
                         }

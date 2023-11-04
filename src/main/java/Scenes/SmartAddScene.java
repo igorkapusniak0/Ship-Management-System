@@ -2,14 +2,11 @@ package Scenes;
 
 
 import Controller.API;
-import LinkedList.List;
-import LinkedList.Node;
-import javafx.application.Platform;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseButton;
+
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -17,26 +14,16 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import models.Container;
 import models.Pallet;
-import models.Port;
-import models.Ship;
 
-import java.io.FileNotFoundException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+
 
 public class SmartAddScene extends Scene {
     private PortScene portScene;
     private MainScene mainScene;
     private API api;
-    private Port port;
-    private Ship ship;
     private Container container;
-    private ShipScene shipScene;
-    public Pallet pallet;
     private Label nullCont = new Label("");
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public SmartAddScene(Pane root, MainScene mainScene,PortScene portScene, API api, Container container) {
         super(root);
@@ -46,12 +33,11 @@ public class SmartAddScene extends Scene {
         this.container = container;
 
 
-        Label displayName;
-        displayName = new Label();
+        Label displayName = new Label();
         displayName.setFont(new Font("Arial", 50));
 
         if(container!=null) {
-            displayName.setText(container.getContCode());
+            displayName.setText("Container: "+container.getContCode());
         }
 
 

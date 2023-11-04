@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class ContainerInPortScene extends Scene {
     private PortScene portScene;
@@ -48,7 +49,7 @@ public class ContainerInPortScene extends Scene {
         displayName.setFont(new Font("Arial", 50));
 
         if(port!=null) {
-            displayName.setText(container.getContCode());
+            displayName.setText("Container: "+container.getContCode());
         }
 
         Label palletDescription = new Label("Description");
@@ -183,14 +184,19 @@ public class ContainerInPortScene extends Scene {
         TextField searchPallet = new TextField();
         searchPallet.setPromptText("Search Pallet");
 
+        Consumer<Pallet> setPalletTotalValueAction = Pallet::setTotalValue;
         if(container!=null) {
-            scheduler.scheduleAtFixedRate(() -> updatePalletView(searchPallet.getText()), 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> {
+                api.updateListView(searchPallet.getText(),palletTableView,this.container.pallets.head,setPalletTotalValueAction);
+            }, 0, 1, TimeUnit.SECONDS);
         }
         Label removePalletLabel = new Label("");
         Button removePallet = new Button("Remove Pallet");
         removePallet.setOnAction(event -> {
-            container.pallets.remove(chosenPallet);
-            removePalletLabel.setText("");
+            if (chosenPallet!=null) {
+                container.pallets.remove(chosenPallet);
+                removePalletLabel.setText("");
+            }
         });
 
         palletTableView.setOnMouseClicked(event -> {
@@ -212,6 +218,7 @@ public class ContainerInPortScene extends Scene {
 
         Button updateButton = new Button("Update Ship");
         updateButton.setOnAction(event -> {
+            if (chosenPallet!=null){
             chosenPallet.setDescription(description.getText());
             chosenPallet.setQuantity(Integer.parseInt(quantity.getText()));
             chosenPallet.setVolume(Double.parseDouble(volume.getText()));
@@ -220,6 +227,7 @@ public class ContainerInPortScene extends Scene {
             chosenPallet.setTotalValue();
             removePalletLabel.setText("");
             chosenPallet=null;
+            }
         });
 
         Button button = new Button("Return");
