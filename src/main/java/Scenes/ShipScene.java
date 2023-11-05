@@ -15,10 +15,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import models.Container;
-import models.Pallet;
 import models.Port;
 import models.Ship;
-import utils.Utilities;
+
 
 import java.io.FileNotFoundException;
 import java.util.concurrent.Executors;
@@ -27,22 +26,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class ShipScene extends Scene {
-    private PortScene portScene;
-    private MainScene mainScene;
-    private API api;
-    private Port port;
-    private Ship ship;
+    private final API api;
+    private final Port port;
+    private final Ship ship;
     private ContainerInPortScene shipScene;
     private Container container;
     private Container chosenContainer;
-    private TableView<Container> containerListView = new TableView();
-    private ComboBox<Port> portComboBox = new ComboBox();
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final TableView<Container> containerListView = new TableView<>();
+    private final ComboBox<Port> portComboBox = new ComboBox<>();
 
-    public ShipScene(Pane root, MainScene mainScene, PortScene portScene, API api, Ship ship)throws FileNotFoundException {
+    public ShipScene(Pane root, Port port, MainScene mainScene, PortScene portScene, API api, Ship ship)throws FileNotFoundException {
         super(root);
-        this.mainScene = mainScene;
-        this.portScene = portScene;
+        this.port = port;
         this.ship = ship;
         this.api = api;
 
@@ -66,7 +61,7 @@ public class ShipScene extends Scene {
         vBox1.setMinSize(700, 600);
         vBox1.setStyle(" -fx-padding: 40px;");
 
-        ComboBox<Integer> contSize = new ComboBox();
+        ComboBox<Integer> contSize = new ComboBox<>();
         contSize.setPromptText("Select Container Size");
         contSize.getItems().addAll(10,20,40);
         contSize.setMaxWidth(300);
@@ -94,9 +89,8 @@ public class ShipScene extends Scene {
 
         Consumer<Container> setContTotalValueAction = Container::setTotalValue;
         if(ship!=null) {
-            scheduler.scheduleAtFixedRate(() -> {
-                api.updateListView(searchCont.getText(),containerListView,this.ship.containers.head,setContTotalValueAction);
-            }, 0, 1, TimeUnit.SECONDS);
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.scheduleAtFixedRate(() -> api.updateListView(searchCont.getText(),containerListView,this.ship.containers.head,setContTotalValueAction), 0, 1, TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateComboBoxContainer, 0, 1, TimeUnit.SECONDS);
         }
 
@@ -105,20 +99,21 @@ public class ShipScene extends Scene {
         Button saveContButton = new Button("Add Container");
         saveContButton.setOnAction(event -> {
             Integer size = contSize.getValue();
-            String code = Utilities.uniqueCodeGenerator();
-            if (size==null){
+            if (contSize.getItems().isEmpty()){
                 error.setText("Container Size cannot be empty");
             }else {
-                Container newContainer = new Container(code,size,new List<Pallet>(),this.port,this.ship);
-                ship.addContainer(newContainer);
-                error.setText("");
+                Container newContainer = new Container(size,new List<>(),this.port);
+                if (ship!=null){
+                    ship.addContainer(newContainer);
+                    error.setText("");
+                }
             }
         });
 
         Label removeContainerLabel = new Label("");
         Button removeButton = new Button("Remove Container");
         removeButton.setOnAction(event -> {
-            if (chosenContainer!=null){
+            if (chosenContainer!=null&&ship!=null){
                 ship.removeContainer(chosenContainer);
                 removeContainerLabel.setText("");
             }
@@ -149,7 +144,7 @@ public class ShipScene extends Scene {
         });
         Button moveButton = new Button("Move Container to Port");
         moveButton.setOnAction(event -> {
-            if (portComboBox!=null&&chosenContainer!=null) {
+            if (!portComboBox.getItems().isEmpty() && (chosenContainer != null) && (ship!=null)) {
                 api.unloadContainer(ship, portComboBox.getValue(), chosenContainer);
             }
         });
@@ -188,29 +183,13 @@ public class ShipScene extends Scene {
 
         root.getChildren().addAll(borderPane);
     }
-    private void updateContainerListView(String container) {
-        if (this.ship != null) {
-            Platform.runLater(() -> {
-                containerListView.getItems().clear();
-                containerListView.getItems().removeIf(container1 -> !container1.toString().contains(container));
-                Node<Container> current = this.ship.containers.head;
-                while (current != null){
-                    if (current.data.toString().contains(container)){
-                        if (!containerListView.getItems().contains(current.data)){
-                            containerListView.getItems().add(current.data);
-                        }
-                    }
-                    current = current.next;
-                }
-            });
-        }
-    }
+
     private void updateComboBoxContainer() {
-        if (this.api != null && this.api.list != null) {
+        if (this.api != null && API.list != null) {
             Platform.runLater(() -> {
                 Port selectedPort = portComboBox.getValue();
                 portComboBox.getItems().clear();
-                Node<Port> current = this.api.list.head;
+                Node<Port> current = API.list.head;
                 while (current != null) {
                     Port port = current.data;
                     portComboBox.getItems().add(port);

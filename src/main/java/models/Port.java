@@ -1,4 +1,5 @@
 package models;
+import Controller.API;
 import LinkedList.Node;
 import utils.*;
 import LinkedList.List;
@@ -6,8 +7,8 @@ import LinkedList.List;
 import java.io.Serializable;
 
 
+
 public class Port implements Serializable {
-    private List list;
     public String portName;
     public String portCode;
     public String portCountry;
@@ -15,7 +16,9 @@ public class Port implements Serializable {
     public double totalValue;
     public List<Ship> ships = new List<>();
 
-    public Port(String portName, String country, String portCode, List ships, List containersInPort){
+
+
+    public Port(String portName, String country,List<Ship> ships, List<Container> containersInPort){
         setPortName(portName);
         setPortCountry(country);
         setPortCode();
@@ -42,9 +45,10 @@ public class Port implements Serializable {
     public String getPortCountry(){
         return portCountry;
     }
-    public void setPortCode(){
-        this.portCode= Utilities.truncateString(portCountry,3)+"-"+Utilities.uniqueCodeGenerator();
+    public void setPortCode() {
+        this.portCode=Utilities.truncateString(portCountry,3)+"-"+API.uniquePortCode(Utilities.uniqueCodeGenerator());
     }
+
     public String getPortCode(){
         return portCode;
     }

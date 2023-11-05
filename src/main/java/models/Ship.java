@@ -1,5 +1,6 @@
 package models;
 
+import Controller.API;
 import LinkedList.List;
 import LinkedList.Node;
 import utils.Utilities;
@@ -14,7 +15,7 @@ public class Ship implements Serializable {
     private double totalValue;
     public List<Container> containers = new List<>();
 
-    public Ship(String shipName, String shipCountry, String shipPicture, String shipCode){
+    public Ship(String shipName, String shipCountry,String shipPicture){
         setShipName(shipName);
         setShipCountry(shipCountry);
         setShipPicture(shipPicture);
@@ -39,7 +40,7 @@ public class Ship implements Serializable {
         return shipCountry;
     }
     public void setShipCode(){
-        this.shipCode = Utilities.truncateString(shipCountry,3)+"-"+Utilities.uniqueCodeGenerator();
+        this.shipCode=Utilities.truncateString(shipCountry,3)+"-"+API.uniqueShipCode(Utilities.uniqueCodeGenerator());
     }
     public void setTotalValue(){
         Node<Container> current = containers.head;
@@ -50,6 +51,7 @@ public class Ship implements Serializable {
         }
         this.totalValue=totalValue;
     }
+
     public double getTotalValue(){
         return totalValue;
     }
@@ -66,6 +68,9 @@ public class Ship implements Serializable {
     public void addContainer(Container container){
         containers.add(container);
         setTotalValue();
+    }
+    public List<Container> getAllContainers() {
+        return containers;
     }
     public void removeContainer(Container container){
         containers.remove(container);

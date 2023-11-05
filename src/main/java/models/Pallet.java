@@ -12,6 +12,7 @@ public class Pallet implements Serializable {
     private double volume =0;
     private double totalValue;
     private Container container;
+    public String palletLocation;
     public Pallet(String description,int quantity,double value,double weight,double volume,Container container){
         setDescription(description);
         setQuantity(quantity);
@@ -20,6 +21,7 @@ public class Pallet implements Serializable {
         setVolume(volume);
         setContainer(container);
         setTotalValue();
+        setPalletLocation(container);
     }
 
     public void setDescription(String description){
@@ -46,6 +48,12 @@ public class Pallet implements Serializable {
         }else{
             this.value=0.1;
         }
+    }
+    public void setPalletLocation(Container container){
+        this.palletLocation =container.getLocation();
+    }
+    public String getPalletLocation(){
+        return palletLocation;
     }
     public double getValue(){
         return value;
@@ -74,6 +82,7 @@ public class Pallet implements Serializable {
 
     public void setContainer(Container container){
         this.container = container;
+        setPalletLocation(container);
     }
     public Container getContainer(){
         return container;

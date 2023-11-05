@@ -1,7 +1,6 @@
 package Scenes;
 
 
-import Controller.API;
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,18 +17,12 @@ import models.Pallet;
 
 
 public class SmartAddScene extends Scene {
-    private PortScene portScene;
-    private MainScene mainScene;
-    private API api;
-    private Container container;
-    private Label nullCont = new Label("");
+    private final Container container;
+    private final Label nullCont = new Label("");
 
 
-    public SmartAddScene(Pane root, MainScene mainScene,PortScene portScene, API api, Container container) {
+    public SmartAddScene(Pane root, MainScene mainScene,PortScene portScene, Container container) {
         super(root);
-        this.mainScene = mainScene;
-        this.portScene = portScene;
-        this.api = api;
         this.container = container;
 
 
@@ -43,7 +36,7 @@ public class SmartAddScene extends Scene {
 
 
         Label palletDescription = new Label("Description");
-        Label quantityofItems = new Label("Quantity of Items");
+        Label quantityOfItems = new Label("Quantity of Items");
         Label palletValue = new Label("Value of Pallet");
         Label palletWeight = new Label("Weight of Pallet");
         Label palletVolume = new Label("Volume of Pallet");
@@ -133,10 +126,10 @@ public class SmartAddScene extends Scene {
             }
 
             if (isValid) {
-                Integer quantityValue = Integer.parseInt(quantityText);
-                Double valueValue = Double.parseDouble(valueText);
-                Double weightValue = Double.parseDouble(weightText);
-                Double volumeValue = Double.parseDouble(volumeText);
+                int quantityValue = Integer.parseInt(quantityText);
+                double valueValue = Double.parseDouble(valueText);
+                double weightValue = Double.parseDouble(weightText);
+                double volumeValue = Double.parseDouble(volumeText);
 
                 if (container!=null){
                     Pallet newPallet = new Pallet(descriptionText, quantityValue, valueValue, weightValue, volumeValue,this.container);
@@ -156,7 +149,7 @@ public class SmartAddScene extends Scene {
 
         vBox.getChildren().add(displayName);
         vBox1.getChildren().addAll(addPalletButton);
-        vBox2.getChildren().addAll(addPallet,palletDescription,description,desError,quantityofItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError);
+        vBox2.getChildren().addAll(addPallet,palletDescription,description,desError,quantityOfItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError);
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
 

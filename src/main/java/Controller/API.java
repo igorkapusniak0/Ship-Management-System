@@ -2,27 +2,25 @@ package Controller;
 
 import LinkedList.Node;
 import javafx.application.Platform;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import models.Container;
 import models.Pallet;
 import models.Port;
 import LinkedList.List;
 import models.Ship;
-
+import utils.Utilities;
 
 
 import java.io.*;
 import java.util.function.Consumer;
 
 public class API {
-    private Port port;
-    public List<Port> list = new List<>();
-    public List<Ship> shipsAtSea = new List<>();
+    public static List<Port> list = new List<>();
+    public static List<Ship> shipsAtSea = new List<>();
     public double totalValue;
 
 
-    public void save(String fileName) {
+    public static void save(String fileName) {
         try (FileOutputStream fileOutputStream = new FileOutputStream(fileName);
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
             objectOutputStream.writeObject(list);
@@ -31,7 +29,7 @@ public class API {
             e.printStackTrace();
         }
     }
-    public void clear(String fileName) {
+    public static void clear(String fileName) {
         try (FileOutputStream fileOutputStream = new FileOutputStream(fileName);
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
             objectOutputStream.writeObject(null);
@@ -42,7 +40,7 @@ public class API {
     }
 
 
-    public void load(String fileName) {
+    public static void load(String fileName) {
         try (FileInputStream fileInputStream = new FileInputStream(fileName);
              ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
             list = (List<Port>) objectInputStream.readObject();
@@ -52,31 +50,8 @@ public class API {
         }
     }
 
-    public boolean addPort(Port port){
-        if(port.getPortCode()!=null){
-            list.add(port);
-            return true;
-        }else{
-            return false;
-        }
-    }
-    public boolean addShip(Ship ship){
-        if(ship.getShipCode()!=null){
-            port.ships.add(ship);
-            return true;
-        }else{
-            return false;
-        }
-    }
-
-    public Port deletePort(Port port){
-        if(port!=null && list.contains(port)){
-            list.remove(port);
-            return port;
-        }else{
-            return null;
-        }
-
+    public void addPort(Port port){
+        list.add(port);
     }
     public Port getPort(Port port) {
         Node<Port> current = list.head;
@@ -119,7 +94,7 @@ public class API {
         }
     }
 
-    public String listAlConts() {
+    public String listAllContainers() {
         Node<Container> current = list.head.data.ships.head.data.containers.head;
         StringBuilder string = new StringBuilder();
 
@@ -132,7 +107,7 @@ public class API {
             string.setLength(string.length() - 2);
             return string.toString();
         } else {
-            return "No cotns found.";
+            return "No containers found.";
         }
     }
     public Port searchPort(String port){
@@ -146,25 +121,60 @@ public class API {
     }
 
     public void moveShip(Port source, Port destination,Ship ship){
+        Node<Container> current= ship.containers.head;
+        while (current!=null){
+            current.data.setPort(destination);
+            Node<Pallet> currentPallet= current.data.pallets.head;
+            while (currentPallet!=null){
+                currentPallet.data.setPalletLocation(current.data);
+                currentPallet=currentPallet.next;
+            }
+            current=current.next;
+        }
         destination.addShip(ship);
         source.removeShip(ship);
     }
     public void unloadContainer(Ship source, Port destination,Container container){
+        Node<Pallet> current = container.pallets.head;
+        while (current!=null){
+            current.data.setPalletLocation(container);
+            current=current.next;
+        }
+        container.setPort(destination);
         destination.containersInPort.add(container);
         source.removeContainer(container);
-        container.setPort(destination);
     }
     public void loadContainer(Port source, Ship destination,Container container){
         destination.addContainer(container);
         source.containersInPort.remove(container);
-        container.setShip(destination);
     }
     public void moveShipFromSea(Port destination,Ship ship){
+        Node<Container> current= ship.containers.head;
+        while (current!=null){
+            current.data.setPort(destination);
+            Node<Pallet> currentPallet= current.data.pallets.head;
+            while (currentPallet!=null){
+                currentPallet.data.setPalletLocation(current.data);
+                currentPallet=currentPallet.next;
+            }
+            current=current.next;
+        }
         destination.addShip(ship);
         shipsAtSea.remove(ship);
+
     }
 
     public void moveShipToSea(Port source,Ship ship){
+        Node<Container> current= ship.containers.head;
+        while (current!=null){
+            current.data.setPort(null);
+            Node<Pallet> currentPallet= current.data.pallets.head;
+            while (currentPallet!=null){
+                currentPallet.data.setPalletLocation(current.data);
+                currentPallet=currentPallet.next;
+            }
+            current=current.next;
+        }
         shipsAtSea.add(ship);
         source.ships.remove(ship);
     }
@@ -330,7 +340,6 @@ public class API {
 
 
     public <T> void updateListView(String filter, TableView tableView, Node<T> head, Consumer setTotalValue) {
-        if (tableView != null && head != null) {
             Platform.runLater(() -> {
                 tableView.getItems().clear();
                 tableView.getItems().removeIf(container1 -> !container1.toString().contains(filter));
@@ -345,7 +354,112 @@ public class API {
                     current = current.next;
                 }
             });
+    }
+
+    public static String uniquePortCode(String code){
+        boolean unique = false;
+        String uniqueCode = "";
+        while (!unique) {
+            unique = true;
+            Node<Port> current = list.head;
+            while (current != null) {
+                if (current.data.getPortCode().equals(code)) {
+                    code = Utilities.uniqueCodeGenerator();
+                    unique = false;
+                    break;
+                }
+                current = current.next;
+            }
         }
+        if (unique) {
+            uniqueCode = code;
+        }
+        return uniqueCode;
+    }
+    public static String uniqueShipCode(String code){
+        String uniqueCode = "";
+        boolean unique = false;
+        while (!unique){
+            unique = true;
+            Node<Port> current = list.head;
+            while (current!=null){
+                Node<Ship> currentShip =current.data.ships.head;
+                while (currentShip!=null){
+                    if (currentShip.data.getShipCode().equals(code)){
+                        code = Utilities.uniqueCodeGenerator();
+                        unique = false;
+                        break;
+                    }
+                    currentShip=currentShip.next;
+                }
+                current=current.next;
+            }
+            Node<Ship> currentShip = shipsAtSea.head;
+            while (currentShip!=null){
+                if (currentShip.data.getShipCode().equals(code)){
+                    code = Utilities.uniqueCodeGenerator();
+                    unique = false;
+                    break;
+                }
+                currentShip=currentShip.next;
+            }
+        }
+        if (unique) {
+            uniqueCode = code;
+        }
+        return uniqueCode;
+    }
+
+    public static String uniqueContainerCode(String code){
+        String uniqueCode = "";
+        boolean unique = false;
+        while (!unique){
+            unique = true;
+            Node<Port> current = list.head;
+            while (current!=null){
+                Node<Ship> currentShip =current.data.ships.head;
+                while (currentShip!=null){
+                    Node<Container> currentContainer= currentShip.data.containers.head;
+                    while (currentContainer!=null){
+                        if (currentContainer.data.getContCode().equals(code)){
+                            code = Utilities.uniqueCodeGenerator();
+                            unique=false;
+                            break;
+                        }
+                        currentContainer=currentContainer.next;
+                    }
+                    currentShip=currentShip.next;
+
+                }
+                Node<Container> currentContainer = current.data.containersInPort.head;
+                while (currentContainer!=null){
+                    if (currentContainer.data.getContCode().equals(code)){
+                        code = Utilities.uniqueCodeGenerator();
+                        unique=false;
+                        break;
+                    }
+                    currentContainer=currentContainer.next;
+                }
+                current= current.next;
+            }
+            Node<Ship> currentShip = shipsAtSea.head;
+            while (currentShip!=null){
+                Node<Container> currentContainer = currentShip.data.containers.head;
+                while (currentContainer!=null){
+                    if (currentContainer.data.getContCode().equals(code)){
+                        code = Utilities.uniqueCodeGenerator();
+                        unique=false;
+                        break;
+                    }
+                    currentContainer=currentContainer.next;
+                }
+                currentShip=currentShip.next;
+            }
+        }
+        if (unique){
+            uniqueCode = code;
+        }
+        return uniqueCode;
     }
 
 

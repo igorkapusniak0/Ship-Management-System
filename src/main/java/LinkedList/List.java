@@ -86,7 +86,7 @@ public class List<T> implements Serializable {
         }
         return false;
     }
-    public int size(){
+    public int  size(){
         int size = 0;
         Node<T> current = head;
         while (current != null){

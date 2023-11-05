@@ -14,7 +14,6 @@ import models.Pallet;
 import models.Port;
 import Controller.API;
 import models.Ship;
-import utils.Utilities;
 
 import java.io.FileNotFoundException;
 import java.util.concurrent.Executors;
@@ -22,44 +21,34 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class InfoScene extends Scene {
-    private PortScene portScene;
-    private MainScene mainScene;
-    private API api;
-    private Port port;
-    private Container container;
+    private final API api;
     private Container chosenContainer;
-    private TableView<Pallet> allPallets = new TableView();
-    private TableView<Container> allContainers= new TableView();
+    private final TableView<Pallet> allPallets = new TableView<>();
+    private final TableView<Container> allContainers= new TableView<>();
     private Pallet chosenPallet;
     private ContainerInPortScene containerInPortScene;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private Label totalValue = new Label("The Total Value of all Pallets is: 0");
+    private final Label totalValue = new Label("The Total Value of all Pallets is: 0");
 
     public InfoScene(Pane root, MainScene mainScene, PortScene portScene,API api){
         super(root);
-        this.mainScene = mainScene;
-        this.portScene = portScene;
         this.api = api;
 
 
         TableColumn<Container, String> containerColumn = new TableColumn<>("Container Code");
         TableColumn<Container, String> containerSize = new TableColumn<>("Container Size");
-        TableColumn<Container, String> containerPortLocation = new TableColumn<>("Container Port Location");
-        TableColumn<Container, String> containerShipLocation = new TableColumn<>("Container Ship Location");
+        TableColumn<Container, String> containerLocation = new TableColumn<>("Container Port Location");
 
 
         containerColumn.setMinWidth(200);
         containerSize.setMinWidth(200);
-        containerPortLocation.setMinWidth(200);
-        containerShipLocation.setMinWidth(200);
-        allContainers.getColumns().addAll(containerColumn,containerSize,containerPortLocation,containerShipLocation);
+        containerLocation.setMinWidth(200);
+        allContainers.getColumns().addAll(containerColumn,containerSize,containerLocation);
 
 
 
         containerColumn.setCellValueFactory(new PropertyValueFactory<>("contCode"));
         containerSize.setCellValueFactory(new PropertyValueFactory<>("contSize"));
-        containerPortLocation.setCellValueFactory(new PropertyValueFactory<>("port"));
-        containerShipLocation.setCellValueFactory(new PropertyValueFactory<>("ship"));
+        containerLocation.setCellValueFactory(new PropertyValueFactory<>("location"));
 
         TableColumn<Pallet, String> descriptionColumn = new TableColumn<>("Pallet Description");
         TableColumn<Pallet, String> quantityColumn = new TableColumn<>("Quantity of Items");
@@ -69,7 +58,7 @@ public class InfoScene extends Scene {
         TableColumn<Pallet, String> palletLocationColumn = new TableColumn<>("Pallet Location");
 
 
-        descriptionColumn.setMinWidth(500);
+        descriptionColumn.setMinWidth(300);
         quantityColumn.setMinWidth(100);
         valueColumn.setMinWidth(100);
         weightColumn.setMinWidth(100);
@@ -81,7 +70,7 @@ public class InfoScene extends Scene {
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
         weightColumn.setCellValueFactory(new PropertyValueFactory<>("weight"));
         volumeColumn.setCellValueFactory(new PropertyValueFactory<>("volume"));
-        palletLocationColumn.setCellValueFactory(new PropertyValueFactory<>("container"));
+        palletLocationColumn.setCellValueFactory(new PropertyValueFactory<>("palletLocation"));
 
         allPallets.setPlaceholder(new Label("No Pallets Added Yet"));
         allContainers.setPlaceholder(new Label("No Containers Added Yet"));
@@ -89,7 +78,8 @@ public class InfoScene extends Scene {
         Label removePalletLabel = new Label("");
 
 
-        scheduler.scheduleAtFixedRate(() -> updatePalletView(), 0, 1, TimeUnit.SECONDS);
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(this::updatePalletView, 0, 1, TimeUnit.SECONDS);
 
         Label selectedCont = new Label("");
 
@@ -169,12 +159,11 @@ public class InfoScene extends Scene {
                 allPallets.getItems().clear();
                 allContainers.getItems().clear();
                 totalValue.setText("The Total Value of all Pallets is: " + this.api.getTotalValue());
-                Node<Port> portNode = api.list.head;
+                Node<Port> portNode = API.list.head;
                 while (portNode != null) {
                     Port currentPort = portNode.data;
                     Node<Ship> shipNode = portNode.data.ships.head;
                     while (shipNode!=null){
-                        Ship currentShip = shipNode.data;
                         Node<Container> containerNode = shipNode.data.containers.head;
                         while (containerNode!=null){
                             Container currentContainer = containerNode.data;
@@ -204,7 +193,7 @@ public class InfoScene extends Scene {
                     }
                     portNode = portNode.next;
                 }
-                Node<Ship> shipNode = api.shipsAtSea.head;
+                Node<Ship> shipNode = API.shipsAtSea.head;
                 while (shipNode != null) {
                     Ship currentShip = shipNode.data;
                     Node<Container> containerNode = currentShip.containers.head;

@@ -17,7 +17,6 @@ import utils.Utilities;
 import Controller.API;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,25 +24,20 @@ import java.util.function.Consumer;
 
 public class PortScene extends Scene {
     public API api;
-    private MainScene mainScene;
     public Port port;
-    private Ship ship;
     public IndividualPort individualPort;
     private ShipScene shipScene;
-    private List list;
-    private TableView<Port> listView = new TableView();
-    private TableView<Ship> shipsAtSeaTableView = new TableView();
+    private final TableView<Port> listView = new TableView<>();
+    private final TableView<Ship> shipsAtSeaTableView = new TableView<>();
     private InfoScene infoScene;
     Pane window;
     private SmartAddScene smartAddScene;
     private Port choosePort;
     private Ship chosenShip;
-    private ComboBox<Port> portsToDockAt = new ComboBox<>();
-    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ComboBox<Port> portsToDockAt = new ComboBox<>();
 
-    public PortScene(Pane root, MainScene mainScene) throws IOException {
+    public PortScene(Pane root, MainScene mainScene) {
         super(root);
-        this.mainScene = mainScene;
         window = root;
         this.api = new API();
         BorderPane borderPane = new BorderPane();
@@ -147,9 +141,10 @@ public class PortScene extends Scene {
 
         Consumer<Port> setPortTotalValueAction = Port::setTotalValue;
         Consumer<Ship> setShipTotalValueAction = Ship::setTotalValue;
-        if(api.list.isEmpty()) {
-            scheduler.scheduleAtFixedRate(() -> api.updateListView(searchPort.getText(),listView,this.api.list.head,setPortTotalValueAction), 0, 1, TimeUnit.SECONDS);
-            scheduler.scheduleAtFixedRate(() -> api.updateListView(searchShip.getText(),shipsAtSeaTableView,this.api.shipsAtSea.head,setShipTotalValueAction), 0, 1, TimeUnit.SECONDS);
+        if(API.list.isEmpty()) {
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.scheduleAtFixedRate(() -> api.updateListView(searchPort.getText(),listView, API.list.head,setPortTotalValueAction), 0, 1, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> api.updateListView(searchShip.getText(),shipsAtSeaTableView, API.shipsAtSea.head,setShipTotalValueAction), 0, 1, TimeUnit.SECONDS);
             scheduler.scheduleAtFixedRate(this::updateComboBoxContainer, 0, 1, TimeUnit.SECONDS);
         }
 
@@ -159,12 +154,9 @@ public class PortScene extends Scene {
         saveButton.setOnAction(event -> {
             String name = nameField.getText();
             String country = countryBox.getValue();
-            String code = Utilities.uniqueCodeGenerator();
-            boolean portNameExists = listView.getItems().stream().anyMatch(port -> port.getPortName().equals(name));
-            boolean portCodeExists = listView.getItems().stream().anyMatch(port -> port.getPortName().equals(code));
 
-            if (!name.isBlank() && countryBox.getValue() != null && !portNameExists && !portCodeExists) {
-                Port newPort = new Port(name, country, code, new List<Ship>(), new List<Container>());
+            if (!name.isBlank() && countryBox.getValue() != null) {
+                Port newPort = new Port(name, country, new List<>(), new List<>());
                 api.addPort(newPort);
                 error.setText("");
                 error2.setText("");
@@ -174,24 +166,19 @@ public class PortScene extends Scene {
                 } else {
                     error.setText("");
                 }
-                if (countryBox.getValue() == null) {
+                if (countryBox.getValue().isEmpty()) {
                     error2.setText("Field cannot be empty");
                 } else {
                     error2.setText("");
                 }
-                if (portNameExists) {
-                    error.setText("Port with the same name already exists");
-                }
-                if (portCodeExists) {
-                    error2.setText("Port with the code name already exists");
-                }
+
             }
         });
 
         Label removeLabel = new Label("");
         button.setOnAction(e -> {
             if (choosePort!=null) {
-                api.list.remove(choosePort);
+                API.list.remove(choosePort);
                 removeLabel.setText("");
             }
         });
@@ -213,7 +200,7 @@ public class PortScene extends Scene {
 
         Button dockShip = new Button("Move Ship to Port");
         dockShip.setOnAction(event -> {
-            if (portsToDockAt!=null&&chosenShip!=null) {
+            if (!portsToDockAt.getItems().isEmpty()&&chosenShip != null) {
                 api.moveShipFromSea(portsToDockAt.getValue(), chosenShip);
             }
         });
@@ -221,10 +208,9 @@ public class PortScene extends Scene {
             if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                 Ship selectedShip = shipsAtSeaTableView.getSelectionModel().getSelectedItem();
                 if (selectedShip != null) {
-                    ship = selectedShip;
                     try {
                         Pane individualPortRoot = new Pane();
-                        shipScene = new ShipScene(individualPortRoot, mainScene, this, api, selectedShip);
+                        shipScene = new ShipScene(individualPortRoot, port, mainScene, this, api, selectedShip);
                         mainScene.switchScene(shipScene);
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);
@@ -260,14 +246,9 @@ public class PortScene extends Scene {
         });
 
         Button save = new Button("Save");
-        save.setOnAction(event -> {
-            api.save("data.ser");
-
-        });
+        save.setOnAction(event -> api.save("data.ser"));
         Button read = new Button("Read");
-        read.setOnAction(event -> {
-            api.load("data.ser");
-        });
+        read.setOnAction(event -> api.load("data.ser"));
 
         Button reset = new Button("Reset Facility");
         reset.setOnAction(event -> {
@@ -281,7 +262,7 @@ public class PortScene extends Scene {
             Container smartAddContainer = api.suitableContainer();
             if (smartAddContainer!=null){
                 Pane rootSmartAdd = new Pane();
-                smartAddScene = new SmartAddScene(rootSmartAdd,mainScene,this,api,smartAddContainer);
+                smartAddScene = new SmartAddScene(rootSmartAdd,mainScene,this,smartAddContainer);
                 mainScene.switchScene(smartAddScene);
             }else {
                 smartAddButton.setText("No containers Added");
@@ -322,51 +303,12 @@ public class PortScene extends Scene {
     }
 
 
-    private void updateShipView(String ship) {
-        if (this.api.shipsAtSea!=null) {
-            Platform.runLater(() -> {
-                shipsAtSeaTableView.getItems().clear();
-                shipsAtSeaTableView.getItems().removeIf(ship1 -> !ship1.toString().contains(ship));
-                Node<Ship> current = this.api.shipsAtSea.head;
-                while (current != null) {
-                    current.data.setTotalValue();
-                    if (current.data.toString().contains(ship)) {
-                        if(!shipsAtSeaTableView.getItems().contains(current.data)){
-                            shipsAtSeaTableView.getItems().add(current.data);
-                        }
-                    }
-                    System.out.println(current.data);
-                    current=current.next;
-                }
-            });
-        }
-    }
-
-    private void updateSearchPort(String port) {
-        if (this.api.list != null) {
-            Platform.runLater(() -> {
-                listView.getItems().clear();
-                listView.getItems().removeIf(port1 -> !port1.toString().contains(port));
-                Node<Port> current = this.api.list.head;
-                while (current != null) {
-                    current.data.setTotalValue();
-                    if (current.data.toString().contains(port)) {
-                        if (!listView.getItems().contains(current.data)) {
-                            listView.getItems().add(current.data);
-                        }
-                    }
-                    current = current.next;
-                }
-            });
-        }
-    }
-
     private void updateComboBoxContainer() {
-        if (api.list != null) {
+        if (API.list != null) {
             Platform.runLater(() -> {
                 Port selectedPort = portsToDockAt.getValue();
                 portsToDockAt.getItems().clear();
-                Node<Port> current = api.list.head;
+                Node<Port> current = API.list.head;
                 while (current != null) {
                     Port port = current.data;
                     portsToDockAt.getItems().add(port);

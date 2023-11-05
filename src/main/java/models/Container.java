@@ -1,29 +1,33 @@
 package models;
 
+import Controller.API;
 import LinkedList.List;
 import LinkedList.Node;
 import utils.Utilities;
 
 import java.io.Serializable;
 
-public class Container implements Serializable {
+
+public class Container implements Serializable{
     private String contCode = "";
     private int contSize = 0;
-    public List<Pallet> pallets =new List();
+    public List<Pallet> pallets =new List<>();
     private double totalValue;
     private Port port;
     private Ship ship;
-    public Container(String contCode, int contSize, List pallets,Port port,Ship ship){
+    private String location;
+    public Container(int contSize, List<Pallet> pallets,Port port){
         setContCode();
         setContSize(contSize);
         setPallets(pallets);
         setPort(port);
-        setShip(ship);
+        setLocation(port);
         setTotalValue();
     }
     public void setContCode(){
-        this.contCode = "Container-"+Utilities.uniqueCodeGenerator();
+        this.contCode=API.uniqueContainerCode(Utilities.uniqueCodeGenerator());
     }
+
     public String getContCode(){
         return contCode;
     }
@@ -39,20 +43,22 @@ public class Container implements Serializable {
     public int getContSize(){
         return contSize;
     }
-
-    public int contSize(){
-        int height = 8;
-        int width = 8;
-        int volume = 0;
-        volume = contSize*height*width;
-        return volume;
+    public String getLocation(){
+        return location;
     }
+    public void setLocation(Port port){
+        if (port!=null){
+            this.location=port.getPortCountry();
+        }else{
+            this.location="At Sea";
+        }
+    }
+
     public void addPallet(Pallet pallet){
         if(getTotalPalletsVolume()<getContSize()){
             pallets.add(pallet);
             setTotalValue();
         }
-
     }
     public void setPallets(List<Pallet> pallets){
         this.pallets=pallets;
@@ -62,6 +68,7 @@ public class Container implements Serializable {
     }
     public void setPort(Port port){
         this.port = port;
+        setLocation(port);
     }
     public Ship getShip(){
         return ship;
@@ -69,18 +76,17 @@ public class Container implements Serializable {
     public void setShip(Ship ship){
         this.ship=ship;
     }
-
     public int getTotalPalletsVolume(){
         Node<Pallet> current = pallets.head;
         int totalVolume = 0;
         while (current!=null){
-            totalVolume+=current.data.getVolume();
+            totalVolume+= (int) current.data.getVolume();
             current=current.next;
         }
         return totalVolume;
     }
     public double percentageFull(){
-        return getTotalPalletsVolume()/getContSize()*100;
+        return (double) getTotalPalletsVolume() /getContSize()*100;
     }
 
     public void setTotalValue() {
@@ -96,6 +102,7 @@ public class Container implements Serializable {
     public double getTotalValue(){
         return totalValue;
     }
+
     @Override
     public String toString() {
         return "Container{Code: "+  contCode + ", " + "Size: "+contSize+ "}";

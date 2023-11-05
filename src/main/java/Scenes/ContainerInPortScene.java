@@ -1,8 +1,6 @@
 package Scenes;
 
 import Controller.API;
-import LinkedList.Node;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -16,7 +14,7 @@ import javafx.scene.text.Font;
 import models.Container;
 import models.Pallet;
 import models.Port;
-import models.Ship;
+
 
 import java.io.FileNotFoundException;
 import java.util.concurrent.Executors;
@@ -25,35 +23,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class ContainerInPortScene extends Scene {
-    private PortScene portScene;
-    private MainScene mainScene;
-    private API api;
-    private Port port;
-    private Ship ship;
-    private Container container;
-    private ShipScene shipScene;
-    public Pallet pallet;
+    private final Container container;
     private Pallet chosenPallet;
-    private TableView<Pallet> palletTableView = new TableView();
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final TableView<Pallet> palletTableView = new TableView<>();
 
     public ContainerInPortScene(Pane root, MainScene mainScene, PortScene portScene, API api, Container container) throws FileNotFoundException {
         super(root);
-        this.mainScene = mainScene;
-        this.portScene = portScene;
-        this.api = api;
-        this.port = portScene.port;
+        Port port = portScene.port;
         this.container = container;
 
         Label displayName= new Label();
         displayName.setFont(new Font("Arial", 50));
 
-        if(port!=null) {
+        if(port !=null) {
             displayName.setText("Container: "+container.getContCode());
         }
 
         Label palletDescription = new Label("Description");
-        Label quantityofItems = new Label("Quantity of Items");
+        Label quantityOfItems = new Label("Quantity of Items");
         Label palletValue = new Label("Value of Pallet");
         Label palletWeight = new Label("Weight of Pallet");
         Label palletVolume = new Label("Volume of Pallet");
@@ -171,13 +158,14 @@ public class ContainerInPortScene extends Scene {
             }
 
             if (isValid) {
-                Integer quantityValue = Integer.parseInt(quantityText);
-                Double valueValue = Double.parseDouble(valueText);
-                Double weightValue = Double.parseDouble(weightText);
-                Double volumeValue = Double.parseDouble(volumeText);
+                int quantityValue = Integer.parseInt(quantityText);
+                double valueValue = Double.parseDouble(valueText);
+                double weightValue = Double.parseDouble(weightText);
+                double volumeValue = Double.parseDouble(volumeText);
 
                 Pallet newPallet = new Pallet(descriptionText, quantityValue, valueValue, weightValue, volumeValue,this.container);
                 container.addPallet(newPallet);
+                System.out.println(newPallet.getPalletLocation());
             }
         });
 
@@ -186,14 +174,13 @@ public class ContainerInPortScene extends Scene {
 
         Consumer<Pallet> setPalletTotalValueAction = Pallet::setTotalValue;
         if(container!=null) {
-            scheduler.scheduleAtFixedRate(() -> {
-                api.updateListView(searchPallet.getText(),palletTableView,this.container.pallets.head,setPalletTotalValueAction);
-            }, 0, 1, TimeUnit.SECONDS);
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.scheduleAtFixedRate(() -> api.updateListView(searchPallet.getText(),palletTableView,this.container.pallets.head,setPalletTotalValueAction), 0, 1, TimeUnit.SECONDS);
         }
         Label removePalletLabel = new Label("");
         Button removePallet = new Button("Remove Pallet");
         removePallet.setOnAction(event -> {
-            if (chosenPallet!=null) {
+            if (container!=null&&chosenPallet!=null) {
                 container.pallets.remove(chosenPallet);
                 removePalletLabel.setText("");
             }
@@ -219,14 +206,16 @@ public class ContainerInPortScene extends Scene {
         Button updateButton = new Button("Update Ship");
         updateButton.setOnAction(event -> {
             if (chosenPallet!=null){
-            chosenPallet.setDescription(description.getText());
-            chosenPallet.setQuantity(Integer.parseInt(quantity.getText()));
-            chosenPallet.setVolume(Double.parseDouble(volume.getText()));
-            chosenPallet.setWeight(Double.parseDouble(weight.getText()));
-            chosenPallet.setValue(Double.parseDouble(value.getText()));
-            chosenPallet.setTotalValue();
-            removePalletLabel.setText("");
-            chosenPallet=null;
+                if (!quantity.getText().isBlank()&&!description.getText().isBlank()&&!volume.getText().isBlank()&&!weight.getText().isBlank()&&!value.getText().isBlank()){
+                    chosenPallet.setDescription(description.getText());
+                    chosenPallet.setQuantity(Integer.parseInt(quantity.getText()));
+                    chosenPallet.setVolume(Double.parseDouble(volume.getText()));
+                    chosenPallet.setWeight(Double.parseDouble(weight.getText()));
+                    chosenPallet.setValue(Double.parseDouble(value.getText()));
+                    chosenPallet.setTotalValue();
+                    removePalletLabel.setText("");
+                    chosenPallet=null;
+                }
             }
         });
 
@@ -238,7 +227,7 @@ public class ContainerInPortScene extends Scene {
 
         vBox.getChildren().add(displayName);
         vBox1.getChildren().addAll(palletTableView,searchPallet,addPalletButton,removePallet,unselectPallet,updateButton,removePalletLabel);
-        vBox2.getChildren().addAll(addPallet,palletDescription,description,desError,quantityofItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError);
+        vBox2.getChildren().addAll(addPallet,palletDescription,description,desError,quantityOfItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError);
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
 
@@ -253,22 +242,6 @@ public class ContainerInPortScene extends Scene {
 
         root.getChildren().add(borderPane);
     }
-    private void updatePalletView(String pallet) {
-        if (this.container.pallets!=null) {
-            Platform.runLater(() -> {
-                palletTableView.getItems().clear();
-                palletTableView.getItems().removeIf(pallet1 -> !pallet1.toString().contains(pallet));
-                Node<Pallet> current = this.container.pallets.head;
-                while (current != null) {
-                    if (current.data.toString().contains(pallet)) {
-                        if (!palletTableView.getItems().contains(current.data)) {
-                            palletTableView.getItems().add(current.data);
-                        }
-                    }
-                    current=current.next;
-                }
-            });
-        }
-    }
+
 
 }
