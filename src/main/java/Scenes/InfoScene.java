@@ -44,7 +44,10 @@ public class InfoScene extends Scene {
         containerLocation.setMinWidth(200);
         allContainers.getColumns().addAll(containerColumn,containerSize,containerLocation);
 
-
+        TextField searchPallet = new TextField();
+        searchPallet.setPromptText("Search Pallet");
+        TextField searchContainer = new TextField();
+        searchContainer.setPromptText("Search Container");
 
         containerColumn.setCellValueFactory(new PropertyValueFactory<>("contCode"));
         containerSize.setCellValueFactory(new PropertyValueFactory<>("contSize"));
@@ -79,7 +82,8 @@ public class InfoScene extends Scene {
 
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(this::updatePalletView, 0, 1, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(() -> updatePalletView(searchPallet.getText(),searchContainer.getText()), 0, 1, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(() -> System.out.println(searchPallet.getText()), 0, 1, TimeUnit.SECONDS);
 
         Label selectedCont = new Label("");
 
@@ -143,8 +147,8 @@ public class InfoScene extends Scene {
 
         VBox vBox = new VBox(10);
         VBox vBox1 = new VBox(10);
-        vBox.getChildren().addAll(allPallets,unselectPallet,removePalletLabel);
-        vBox1.getChildren().addAll(allContainers,unselectContainer,selectedCont);
+        vBox.getChildren().addAll(allPallets,searchPallet,unselectPallet,removePalletLabel);
+        vBox1.getChildren().addAll(allContainers,searchContainer,unselectContainer,selectedCont);
         HBox hBox = new HBox(10);
         hBox.getChildren().addAll(vBox,vBox1);
         VBox vBox2 = new VBox(10);
@@ -153,7 +157,7 @@ public class InfoScene extends Scene {
         root.getChildren().addAll(vBox2);
     }
 
-    private void updatePalletView() {
+    private void updatePalletView(String pallet, String container) {
         if (api != null) {
             Platform.runLater(() -> {
                 allPallets.getItems().clear();
@@ -167,12 +171,15 @@ public class InfoScene extends Scene {
                         Node<Container> containerNode = shipNode.data.containers.head;
                         while (containerNode!=null){
                             Container currentContainer = containerNode.data;
-                            allContainers.getItems().addAll(currentContainer);
+                            if (currentContainer.toString().contains(container)){
+                                allContainers.getItems().addAll(currentContainer);
+                            }
                             Node<Pallet> palletNode = containerNode.data.pallets.head;
                             while (palletNode!=null){
                                 Pallet currentPallet = palletNode.data;
-
-                                allPallets.getItems().add(currentPallet);
+                                if (currentPallet.toString().contains(pallet)){
+                                    allPallets.getItems().add(currentPallet);
+                                }
                                 palletNode = palletNode.next;
                             }
                             containerNode = containerNode.next;
@@ -182,11 +189,15 @@ public class InfoScene extends Scene {
                     Node<Container> containerNode = currentPort.containersInPort.head;
                     while (containerNode != null) {
                         Container currentContainer = containerNode.data;
-                        allContainers.getItems().addAll(currentContainer);
+                        if (currentContainer.toString().contains(container)){
+                            allContainers.getItems().addAll(currentContainer);
+                        }
                         Node<Pallet> palletNode = currentContainer.pallets.head;
                         while (palletNode != null) {
                             Pallet currentPallet = palletNode.data;
-                            allPallets.getItems().add(currentPallet);
+                            if (currentPallet.toString().contains(pallet)){
+                                allPallets.getItems().add(currentPallet);
+                            }
                             palletNode = palletNode.next;
                         }
                         containerNode = containerNode.next;
@@ -199,11 +210,15 @@ public class InfoScene extends Scene {
                     Node<Container> containerNode = currentShip.containers.head;
                     while (containerNode != null) {
                         Container currentContainer = containerNode.data;
-                        allContainers.getItems().addAll(currentContainer);
+                        if (currentContainer.toString().contains(container)){
+                            allContainers.getItems().addAll(currentContainer);
+                        }
                         Node<Pallet> palletNode = currentContainer.pallets.head;
                         while (palletNode != null) {
                             Pallet currentPallet = palletNode.data;
-                            allPallets.getItems().add(currentPallet);
+                            if (currentPallet.toString().contains(pallet)){
+                                allPallets.getItems().add(currentPallet);
+                            }
                             palletNode = palletNode.next;
                         }
                         containerNode = containerNode.next;

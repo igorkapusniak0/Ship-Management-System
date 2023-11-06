@@ -25,8 +25,8 @@ public class API {
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
             objectOutputStream.writeObject(list);
             objectOutputStream.writeObject(shipsAtSea);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
+
         }
     }
     public static void clear(String fileName) {
@@ -34,8 +34,7 @@ public class API {
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
             objectOutputStream.writeObject(null);
             objectOutputStream.writeObject(null);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
     }
 
@@ -45,8 +44,7 @@ public class API {
              ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
             list = (List<Port>) objectInputStream.readObject();
             shipsAtSea = (List<Ship>) objectInputStream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException ignored) {
         }
     }
 
@@ -234,7 +232,6 @@ public class API {
                 while (containerOnShip!=null){
                     Container container = currentContainer.data;
                     double percentage = container.percentageFull();
-
                     if (percentage<lowestPercentage){
                         lowestPercentage = percentage;
                         lowestPercentageContainer = container;

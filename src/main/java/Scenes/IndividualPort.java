@@ -26,7 +26,6 @@ public class IndividualPort extends Scene {
     private final Port port;
     private final TableView<Ship> shipListView = new TableView<>();
     private final TableView<Container> containerListView = new TableView<>();
-    private Ship ship;
     private ContainerInPortScene containerInPortScene;
     private ShipScene shipScene;
     private Container chosenContainer;
@@ -51,17 +50,17 @@ public class IndividualPort extends Scene {
         VBox vBox = new VBox(10);
         vBox.setAlignment(Pos.TOP_CENTER);
         vBox.setMaxHeight(50);
-        vBox.setStyle(" -fx-padding: 40px;");
+        vBox.setStyle(" -fx-padding: 20px;");
 
         VBox vBox1 = new VBox(10);
         vBox1.setAlignment(Pos.TOP_LEFT);
         vBox1.setMinSize(700, 600);
-        vBox1.setStyle(" -fx-padding: 40px;");
+        vBox1.setStyle(" -fx-padding: 20px;");
 
         VBox vBox2 = new VBox(10);
         vBox2.setAlignment(Pos.TOP_RIGHT);
         vBox2.setMinSize(700, 600);
-        vBox2.setStyle(" -fx-padding: 40px;");
+        vBox2.setStyle(" -fx-padding: 20px;");
 
         Label addShip = new Label("Add Ship to Port");
         addShip.setFont(new Font("Arial",20));
@@ -128,7 +127,8 @@ public class IndividualPort extends Scene {
         totalPalletValue.setMinWidth(200);
 
         containerListView.getColumns().addAll(codeCont,contSizeColumn,totalPalletValue);
-
+        containerListView.setMaxHeight(300);
+        shipListView.setMaxHeight(300);
         codeCont.setCellValueFactory(new PropertyValueFactory<>("contCode"));
         contSizeColumn.setCellValueFactory(new PropertyValueFactory<>("contSize"));
         totalPalletValue.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
@@ -230,7 +230,6 @@ public class IndividualPort extends Scene {
             if (e3.getButton() == MouseButton.PRIMARY && e3.getClickCount() == 2) {
                 Ship selectedShip = shipListView.getSelectionModel().getSelectedItem();
                 if (selectedShip != null) {
-                    ship = selectedShip;
                     try {
                         Pane individualPortRoot = new Pane();
                         shipScene = new ShipScene(individualPortRoot, port, mainScene,portScene,api,selectedShip);
