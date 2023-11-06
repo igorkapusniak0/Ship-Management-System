@@ -194,6 +194,11 @@ public class PortScene extends Scene {
                 choosePort.setPortName(nameField.getText());
                 choosePort.setPortCountry(countryBox.getValue());
                 choosePort.setTotalValue();
+                Node<Ship> current = choosePort.ships.head;
+                while (current!=null){
+                    current.data.setLocation(choosePort);
+                    current=current.next;
+                }
                 removeLabel.setText("");
             }
         });

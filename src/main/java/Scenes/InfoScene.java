@@ -25,13 +25,39 @@ public class InfoScene extends Scene {
     private Container chosenContainer;
     private final TableView<Pallet> allPallets = new TableView<>();
     private final TableView<Container> allContainers= new TableView<>();
+    private final TableView<Ship> allShips = new TableView<>();
     private Pallet chosenPallet;
+    private Ship chosenShip;
     private ContainerInPortScene containerInPortScene;
+    private ShipScene shipScene;
     private final Label totalValue = new Label("The Total Value of all Pallets is: 0");
 
     public InfoScene(Pane root, MainScene mainScene, PortScene portScene,API api){
         super(root);
         this.api = api;
+
+        TableColumn<Ship, String> codeColumn = new TableColumn<>("Ship Code");
+        TableColumn<Ship, String> nameColumn = new TableColumn<>("Ship Name");
+        TableColumn<Ship, String> countryColumn = new TableColumn<>("Ship Country");
+        TableColumn<Ship, String> pictureColumn = new TableColumn<>("Ship Picture");
+        TableColumn<Ship, String> totalValueColumn = new TableColumn<>("Total Value");
+        TableColumn<Ship, String> locationColumn = new TableColumn<>("Ship Location");
+
+        codeColumn.setMinWidth(100);
+        nameColumn.setMinWidth(100);
+        countryColumn.setMinWidth(100);
+        pictureColumn.setMinWidth(100);
+        totalValueColumn.setMinWidth(100);
+        locationColumn.setMinWidth(100);
+        allShips.getColumns().addAll(codeColumn,nameColumn,countryColumn,pictureColumn,totalValueColumn,locationColumn);
+
+        codeColumn.setCellValueFactory(new PropertyValueFactory<>("shipCode"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("shipName"));
+        countryColumn.setCellValueFactory(new PropertyValueFactory<>("shipCountry"));
+        pictureColumn.setCellValueFactory(new PropertyValueFactory<>("shipPicture"));
+        totalValueColumn.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
+        locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
+        allShips.setPlaceholder(new Label("No ships added yet"));
 
 
         TableColumn<Container, String> containerColumn = new TableColumn<>("Container Code");
@@ -108,6 +134,34 @@ public class InfoScene extends Scene {
             chosenContainer = null;
             selectedCont.setText("");
         });
+        Label selectedShip = new Label("");
+
+        Button unselectShip = new Button("Unselect Ship");
+        unselectContainer.setOnAction(event -> {
+            chosenShip = null;
+            selectedShip.setText("");
+        });
+
+        allShips.setOnMouseClicked(e3 -> {
+            if (e3.getButton() == MouseButton.PRIMARY && e3.getClickCount() == 2) {
+                Ship ship = allShips.getSelectionModel().getSelectedItem();
+                if (ship != null) {
+                    chosenShip = ship;
+                    try {
+                        Pane individualPortRoot = new Pane();
+                        shipScene = new ShipScene(individualPortRoot,chosenShip.getPort(),mainScene,portScene,api,chosenShip);
+                        mainScene.switchScene(shipScene);
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }else if (e3.getButton() == MouseButton.SECONDARY && e3.getClickCount() == 2){
+                Ship ship = allShips.getSelectionModel().getSelectedItem();
+                if (ship!=null){
+                    removePalletLabel.setText("Ship: "+ chosenShip.getShipName() + " is selected");
+                }
+            }
+        });
 
         allPallets.setOnMouseClicked(e3 -> {
             if (e3.getButton() == MouseButton.PRIMARY && e3.getClickCount() == 2) {
@@ -143,10 +197,12 @@ public class InfoScene extends Scene {
 
         VBox vBox = new VBox(10);
         VBox vBox1 = new VBox(10);
+        VBox vBox3 = new VBox(10);
         vBox.getChildren().addAll(allPallets,unselectPallet,removePalletLabel);
         vBox1.getChildren().addAll(allContainers,unselectContainer,selectedCont);
+        vBox3.getChildren().addAll(allShips,unselectShip,selectedShip);
         HBox hBox = new HBox(10);
-        hBox.getChildren().addAll(vBox,vBox1);
+        hBox.getChildren().addAll(vBox,vBox1,vBox3);
         VBox vBox2 = new VBox(10);
         vBox2.setAlignment(Pos.CENTER);
         vBox2.getChildren().addAll(hBox,totalValue,button);
@@ -164,6 +220,8 @@ public class InfoScene extends Scene {
                     Port currentPort = portNode.data;
                     Node<Ship> shipNode = portNode.data.ships.head;
                     while (shipNode!=null){
+                        Ship currentShip = shipNode.data;
+                        allShips.getItems().add(currentShip);
                         Node<Container> containerNode = shipNode.data.containers.head;
                         while (containerNode!=null){
                             Container currentContainer = containerNode.data;

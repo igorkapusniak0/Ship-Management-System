@@ -15,6 +15,8 @@ import models.Container;
 import models.Pallet;
 
 
+import java.io.FileNotFoundException;
+
 
 public class SmartAddScene extends Scene {
     private final Container container;
@@ -57,7 +59,7 @@ public class SmartAddScene extends Scene {
         vBox1.setMinSize(700, 600);
         vBox1.setStyle(" -fx-padding: 40px;");
 
-        Label addPallet = new Label("Add Pallet");
+        Label containerFull = new Label("");
 
         TextField description = new TextField();
         TextField quantity = new TextField();
@@ -126,17 +128,28 @@ public class SmartAddScene extends Scene {
             }
 
             if (isValid) {
-                int quantityValue = Integer.parseInt(quantityText);
-                double valueValue = Double.parseDouble(valueText);
-                double weightValue = Double.parseDouble(weightText);
-                double volumeValue = Double.parseDouble(volumeText);
+                int pQuantity = Integer.parseInt(quantityText);
+                double pValue = Double.parseDouble(valueText);
+                double pWeight = Double.parseDouble(weightText);
+                double pVolume = Double.parseDouble(volumeText);
+                System.out.println(container);
 
-                if (container!=null){
-                    Pallet newPallet = new Pallet(descriptionText, quantityValue, valueValue, weightValue, volumeValue,this.container);
+                if (container!=null&&((container.getTotalPalletsVolume()+pVolume)<=container.getContSize())){
+                    Pallet newPallet = new Pallet(descriptionText, pQuantity, pValue, pWeight, pVolume,this.container);
                     container.addPallet(newPallet);
+                    Pane root1 = new Pane();
+                    ContainerInPortScene scene;
+                    try {
+                        scene = new ContainerInPortScene(root1,mainScene,portScene, portScene.api, container);
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    mainScene.switchScene(scene);
+
                 }
                 else{
                     nullCont.setText("No containers in System");
+                    containerFull.setText("Not Enough Room in Container");
                 }
             }
         });
@@ -148,8 +161,8 @@ public class SmartAddScene extends Scene {
         VBox vBox2 = new VBox();
 
         vBox.getChildren().add(displayName);
-        vBox1.getChildren().addAll(addPalletButton);
-        vBox2.getChildren().addAll(addPallet,palletDescription,description,desError,quantityOfItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError);
+        vBox2.getChildren().addAll(palletDescription,description,desError,quantityOfItems,quantity,quantityError,palletValue,value,valueError,palletWeight,weight,weightError,palletVolume,volume,volumeError,containerFull,addPalletButton);
+        vBox2.setStyle(" -fx-padding: 40px;");
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
 
@@ -158,8 +171,7 @@ public class SmartAddScene extends Scene {
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(vBox);
-        borderPane.setLeft(vBox2);
-        borderPane.setRight(vBox1);
+        borderPane.setCenter(vBox2);
         borderPane.setBottom(hBox);
 
         root.getChildren().add(borderPane);

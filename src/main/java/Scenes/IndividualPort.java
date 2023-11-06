@@ -100,19 +100,22 @@ public class IndividualPort extends Scene {
         TableColumn<Ship, String> countryColumn = new TableColumn<>("Ship Country");
         TableColumn<Ship, String> pictureColumn = new TableColumn<>("Ship Picture");
         TableColumn<Ship, String> totalValueColumn = new TableColumn<>("Total Value");
+        TableColumn<Ship, String> locationColumn = new TableColumn<>("Ship Location");
 
         codeColumn.setMinWidth(100);
         nameColumn.setMinWidth(100);
         countryColumn.setMinWidth(100);
         pictureColumn.setMinWidth(100);
         totalValueColumn.setMinWidth(100);
-        shipListView.getColumns().addAll(codeColumn,nameColumn,countryColumn,pictureColumn,totalValueColumn);
+        locationColumn.setMinWidth(100);
+        shipListView.getColumns().addAll(codeColumn,nameColumn,countryColumn,pictureColumn,totalValueColumn,locationColumn);
 
         codeColumn.setCellValueFactory(new PropertyValueFactory<>("shipCode"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("shipName"));
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("shipCountry"));
         pictureColumn.setCellValueFactory(new PropertyValueFactory<>("shipPicture"));
         totalValueColumn.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
+        locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
 
         shipListView.setPlaceholder(new Label("No ships added yet"));
 
@@ -268,7 +271,7 @@ public class IndividualPort extends Scene {
             String picture = shipPicture.getText();
 
             if (!name.isBlank() && country != null && !picture.isBlank() && port!=null) {
-                Ship newShip = new Ship(name, country,picture);
+                Ship newShip = new Ship(name,country,picture,this.port);
                 port.ships.add(newShip);
                 error1.setText("");
                 error2.setText("");
@@ -316,6 +319,7 @@ public class IndividualPort extends Scene {
                 chosenShip.setShipCountry(shipCountry.getValue());
                 chosenShip.setShipPicture(shipPicture.getText());
                 chosenShip.setTotalValue();
+                chosenShip.setLocation(this.port);
                 removeShipLabel.setText("");
             }
         });

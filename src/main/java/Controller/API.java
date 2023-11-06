@@ -131,6 +131,7 @@ public class API {
             }
             current=current.next;
         }
+        ship.setLocation(destination);
         destination.addShip(ship);
         source.removeShip(ship);
     }
@@ -159,6 +160,7 @@ public class API {
             }
             current=current.next;
         }
+        ship.setLocation(destination);
         destination.addShip(ship);
         shipsAtSea.remove(ship);
 
@@ -175,8 +177,23 @@ public class API {
             }
             current=current.next;
         }
+        ship.setLocation(null);
         shipsAtSea.add(ship);
         source.ships.remove(ship);
+    }
+    public void moveContainerToShip(Ship source, Ship destination, Container container){
+        Node<Container> current= source.containers.head;
+        while (current!=null){
+            current.data.setShip(destination);
+            Node<Pallet> currentPallet= current.data.pallets.head;
+            while (currentPallet!=null){
+                currentPallet.data.setPalletLocation(current.data);
+                currentPallet=currentPallet.next;
+            }
+            current=current.next;
+        }
+        destination.addContainer(container);
+        source.removeContainer(container);
     }
     public String getContainerLocation(Container container){
         if(container!=null){
@@ -223,7 +240,7 @@ public class API {
 
                 if (percentage<lowestPercentage){
                     lowestPercentage = percentage;
-                    lowestPercentageContainer= container;
+                    lowestPercentageContainer = container;
                 }
                 currentContainer = currentContainer.next;
             }
@@ -232,14 +249,13 @@ public class API {
             while (currentShip!=null){
                 Node<Container> containerOnShip = currentShip.data.containers.head;
                 while (containerOnShip!=null){
-                    Container container = currentContainer.data;
+                    Container container = containerOnShip.data;
                     double percentage = container.percentageFull();
-
                     if (percentage<lowestPercentage){
                         lowestPercentage = percentage;
                         lowestPercentageContainer = container;
                     }
-                    currentContainer = currentContainer.next;
+                    containerOnShip = containerOnShip.next;
                 }
                 currentShip = currentShip.next;
             }

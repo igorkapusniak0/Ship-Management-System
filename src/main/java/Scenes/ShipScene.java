@@ -26,20 +26,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class ShipScene extends Scene {
-    private final API api;
     private final Port port;
     private final Ship ship;
     private ContainerInPortScene shipScene;
     private Container container;
     private Container chosenContainer;
     private final TableView<Container> containerListView = new TableView<>();
-    private final ComboBox<Port> portComboBox = new ComboBox<>();
+    private final ComboBox<Ship> shipComboBox = new ComboBox<>();
 
     public ShipScene(Pane root, Port port, MainScene mainScene, PortScene portScene, API api, Ship ship)throws FileNotFoundException {
         super(root);
         this.port = port;
         this.ship = ship;
-        this.api = api;
 
         Label displayName;
         displayName = new Label();
@@ -119,7 +117,7 @@ public class ShipScene extends Scene {
             }
         });
 
-        portComboBox.setPromptText("Select Port:");
+        shipComboBox.setPromptText("Select Ship:");
 
         containerListView.setOnMouseClicked(e3 -> {
             if (e3.getButton() == MouseButton.PRIMARY && e3.getClickCount() == 2) {
@@ -142,10 +140,16 @@ public class ShipScene extends Scene {
                 }
             }
         });
-        Button moveButton = new Button("Move Container to Port");
-        moveButton.setOnAction(event -> {
-            if (!portComboBox.getItems().isEmpty() && (chosenContainer != null) && (ship!=null)) {
-                api.unloadContainer(ship, portComboBox.getValue(), chosenContainer);
+        Button unloadContainerButton = new Button("Move Container to Port");
+        unloadContainerButton.setOnAction(event -> {
+            if ((chosenContainer != null) && (ship!=null)) {
+                api.unloadContainer(ship, this.port, chosenContainer);
+            }
+        });
+        Button moveContainerToShip = new Button("Move Container to a Ship");
+        moveContainerToShip.setOnAction(event -> {
+            if ((chosenContainer != null) && (ship!=null) && (!shipComboBox.getItems().isEmpty())){
+                api.moveContainerToShip(ship,shipComboBox.getValue(),chosenContainer);
             }
         });
 
@@ -170,7 +174,7 @@ public class ShipScene extends Scene {
         button.setOnAction(event -> mainScene.switchScene(portScene));
 
         vBox.getChildren().addAll(displayName);
-        vBox1.getChildren().addAll(contSize,error,containerListView,searchCont,saveContButton,removeButton,unselect,updateButton, portComboBox,moveButton,removeContainerLabel);
+        vBox1.getChildren().addAll(contSize,error,containerListView,searchCont,saveContButton,removeButton,unselect,updateButton, shipComboBox,moveContainerToShip,unloadContainerButton,removeContainerLabel);
 
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
@@ -185,18 +189,17 @@ public class ShipScene extends Scene {
     }
 
     private void updateComboBoxContainer() {
-        if (this.api != null && API.list != null) {
+        if (API.list != null) {
             Platform.runLater(() -> {
-                Port selectedPort = portComboBox.getValue();
-                portComboBox.getItems().clear();
-                Node<Port> current = API.list.head;
+                Ship selectedShip = shipComboBox.getValue();
+                shipComboBox.getItems().clear();
+                Node<Ship> current = this.port.ships.head;
                 while (current != null) {
-                    Port port = current.data;
-                    portComboBox.getItems().add(port);
+                    shipComboBox.getItems().add(current.data);
                     current = current.next;
                 }
-                if (selectedPort != null && portComboBox.getItems().contains(selectedPort)) {
-                    portComboBox.setValue(selectedPort);
+                if (selectedShip != null && shipComboBox.getItems().contains(selectedShip)) {
+                    shipComboBox.setValue(selectedShip);
                 }
             });
         }

@@ -13,14 +13,17 @@ public class Ship implements Serializable {
     public String shipCountry = "";
     public String shipPicture;
     private double totalValue;
+    private String location;
+    private Port port;
     public List<Container> containers = new List<>();
 
-    public Ship(String shipName, String shipCountry,String shipPicture){
+    public Ship(String shipName, String shipCountry,String shipPicture,Port port){
         setShipName(shipName);
         setShipCountry(shipCountry);
         setShipPicture(shipPicture);
         setShipCode();
         setTotalValue();
+        setLocation(port);
     }
 
     public void setShipName(String shipName){
@@ -35,6 +38,22 @@ public class Ship implements Serializable {
         if (!Utilities.validStringlength(shipCountry, 20)) {
             Utilities.truncateString(shipCountry, 20);
         } this.shipCountry = shipCountry;
+    }
+    public void setLocation(Port port){
+        if (port!=null){
+            this.location=port.getPortCountry();
+        }else {
+            this.location="At Sea";
+        }
+    }
+    public String getLocation(){
+        return location;
+    }
+    public Port getPort(){
+        return port;
+    }
+    public void setPort(Port port){
+        this.port=port;
     }
     public String getShipCountry(){
         return shipCountry;
@@ -79,7 +98,4 @@ public class Ship implements Serializable {
     public String toString() {
         return "Ship{Name " + shipName + ", Code: " + shipCode + ", Country: " + shipCountry+", Picture: "+shipPicture+"}";
     }
-
-
-
 }
