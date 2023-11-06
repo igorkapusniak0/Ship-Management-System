@@ -251,15 +251,15 @@ public class PortScene extends Scene {
         });
 
         Button save = new Button("Save");
-        save.setOnAction(event -> api.save("data.ser"));
+        save.setOnAction(event -> API.save("data.ser"));
         Button read = new Button("Read");
-        read.setOnAction(event -> api.load("data.ser"));
+        read.setOnAction(event -> API.load("data.ser"));
 
         Button reset = new Button("Reset Facility");
         reset.setOnAction(event -> {
         api.resetFacility();
         api.resetFacility2();
-        api.clear("data.ser ");
+        API.clear("data.ser ");
         });
 
         Button smartAddButton = new Button("Smart Add");
