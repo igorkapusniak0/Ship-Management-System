@@ -130,6 +130,7 @@ public class API {
             current=current.next;
         }
         ship.setLocation(destination);
+        ship.setPort(destination);
         destination.addShip(ship);
         source.removeShip(ship);
     }
@@ -139,11 +140,14 @@ public class API {
             current.data.setPalletLocation(container);
             current=current.next;
         }
+        container.setShip(null);
         container.setPort(destination);
         destination.containersInPort.add(container);
         source.removeContainer(container);
     }
     public void loadContainer(Port source, Ship destination,Container container){
+        container.setShip(destination);
+        container.setPort(source);
         destination.addContainer(container);
         source.containersInPort.remove(container);
     }
@@ -158,6 +162,7 @@ public class API {
             }
             current=current.next;
         }
+        ship.setPort(destination);
         ship.setLocation(destination);
         destination.addShip(ship);
         shipsAtSea.remove(ship);
@@ -175,6 +180,7 @@ public class API {
             }
             current=current.next;
         }
+        ship.setPort(null);
         ship.setLocation(null);
         shipsAtSea.add(ship);
         source.ships.remove(ship);

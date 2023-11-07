@@ -2,8 +2,6 @@ package Scenes;
 
 import Controller.API;
 import LinkedList.List;
-import LinkedList.Node;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -25,16 +23,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class ShipScene extends Scene {
+public class ShipAtSeaScene extends Scene {
     private final Port port;
     private final Ship ship;
     private ContainerInPortScene shipScene;
     private Container container;
     private Container chosenContainer;
     private final TableView<Container> containerListView = new TableView<>();
-    private final ComboBox<Ship> shipComboBox = new ComboBox<>();
 
-    public ShipScene(Pane root, Port port, MainScene mainScene, PortScene portScene, API api, Ship ship)throws FileNotFoundException {
+    public ShipAtSeaScene(Pane root, Port port, MainScene mainScene, PortScene portScene, API api, Ship ship)throws FileNotFoundException {
         super(root);
         this.port = port;
         this.ship = ship;
@@ -46,18 +43,15 @@ public class ShipScene extends Scene {
             displayName.setText("Ship: "+ship.shipName);
         }
 
-
-
-
         VBox vBox = new VBox(10);
         vBox.setAlignment(Pos.TOP_CENTER);
         vBox.setMaxHeight(50);
-        vBox.setStyle(" -fx-padding: 20px;");
+        vBox.setStyle(" -fx-padding: 40px;");
 
         VBox vBox1 = new VBox(10);
         vBox1.setAlignment(Pos.TOP_LEFT);
         vBox1.setMinSize(700, 600);
-        vBox1.setStyle(" -fx-padding: 20px;");
+        vBox1.setStyle(" -fx-padding: 40px;");
 
         ComboBox<Integer> contSize = new ComboBox<>();
         contSize.setPromptText("Select Container Size");
@@ -89,7 +83,6 @@ public class ShipScene extends Scene {
         if(ship!=null) {
             ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
             scheduler.scheduleAtFixedRate(() -> api.updateListView(searchCont.getText(),containerListView,this.ship.containers.head,setContTotalValueAction), 0, 1, TimeUnit.SECONDS);
-            scheduler.scheduleAtFixedRate(this::updateComboBoxContainer, 0, 1, TimeUnit.SECONDS);
         }
 
         Label error = new Label("");
@@ -117,7 +110,6 @@ public class ShipScene extends Scene {
             }
         });
 
-        shipComboBox.setPromptText("Select Ship:");
 
         containerListView.setOnMouseClicked(e3 -> {
             if (e3.getButton() == MouseButton.PRIMARY && e3.getClickCount() == 2) {
@@ -140,18 +132,7 @@ public class ShipScene extends Scene {
                 }
             }
         });
-        Button unloadContainerButton = new Button("Move Container to Port");
-        unloadContainerButton.setOnAction(event -> {
-            if ((chosenContainer != null) && (ship!=null)) {
-                api.unloadContainer(ship, this.port, chosenContainer);
-            }
-        });
-        Button moveContainerToShip = new Button("Move Container to a Ship");
-        moveContainerToShip.setOnAction(event -> {
-            if ((chosenContainer != null) && (ship!=null) && (!shipComboBox.getItems().isEmpty())){
-                api.moveContainerToShip(ship,shipComboBox.getValue(),chosenContainer);
-            }
-        });
+
 
         Button updateButton = new Button("Update Container");
         updateButton.setOnAction(event -> {
@@ -174,7 +155,7 @@ public class ShipScene extends Scene {
         button.setOnAction(event -> mainScene.switchScene(portScene));
 
         vBox.getChildren().addAll(displayName);
-        vBox1.getChildren().addAll(contSize,error,containerListView,searchCont,saveContButton,removeButton,unselect,updateButton, shipComboBox,moveContainerToShip,unloadContainerButton,removeContainerLabel);
+        vBox1.getChildren().addAll(contSize,error,containerListView,searchCont,saveContButton,removeButton,unselect,updateButton,removeContainerLabel);
 
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
@@ -188,21 +169,5 @@ public class ShipScene extends Scene {
         root.getChildren().addAll(borderPane);
     }
 
-    private void updateComboBoxContainer() {
-        if (API.list != null && port!=null) {
-            Platform.runLater(() -> {
-                Ship selectedShip = shipComboBox.getValue();
-                shipComboBox.getItems().clear();
-                Node<Ship> current = this.port.ships.head;
-                while (current != null) {
-                    shipComboBox.getItems().add(current.data);
-                    current = current.next;
-                }
-                if (selectedShip != null && shipComboBox.getItems().contains(selectedShip)) {
-                    shipComboBox.setValue(selectedShip);
-                }
-            });
-        }
-    }
-
 }
+

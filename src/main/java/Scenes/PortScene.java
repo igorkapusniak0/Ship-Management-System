@@ -26,7 +26,7 @@ public class PortScene extends Scene {
     public API api;
     public Port port;
     public IndividualPort individualPort;
-    private ShipScene shipScene;
+    private ShipAtSeaScene shipAtSeaScene;
     private final TableView<Port> listView = new TableView<>();
     private final TableView<Ship> shipsAtSeaTableView = new TableView<>();
     private InfoScene infoScene;
@@ -215,8 +215,8 @@ public class PortScene extends Scene {
                 if (selectedShip != null) {
                     try {
                         Pane individualPortRoot = new Pane();
-                        shipScene = new ShipScene(individualPortRoot, port, mainScene, this, api, selectedShip);
-                        mainScene.switchScene(shipScene);
+                        shipAtSeaScene = new ShipAtSeaScene(individualPortRoot, port, mainScene, this, api, selectedShip);
+                        mainScene.switchScene(shipAtSeaScene);
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);
                     }

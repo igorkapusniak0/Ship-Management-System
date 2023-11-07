@@ -14,7 +14,7 @@ public class Ship implements Serializable {
     public String shipPicture;
     private double totalValue;
     private String location;
-    private Port port;
+    public Port port;
     public List<Container> containers = new List<>();
 
     public Ship(String shipName, String shipCountry,String shipPicture,Port port){
@@ -24,6 +24,7 @@ public class Ship implements Serializable {
         setShipCode();
         setTotalValue();
         setLocation(port);
+        setPort(port);
     }
 
     public void setShipName(String shipName){

@@ -164,7 +164,7 @@ public class IndividualPort extends Scene {
             if (contSize.getItems().isEmpty()){
                 error.setText("Container Size cannot be empty");
             }else {
-                Container newContainer = new Container(size,new List<>(),this.port);
+                Container newContainer = new Container(size,new List<>(),this.port,null);
                 if (port!=null){
                     port.addContainer(newContainer);
                     error.setText("");
@@ -337,7 +337,7 @@ public class IndividualPort extends Scene {
         HBox hBox=new HBox();
         hBox.getChildren().addAll(button);
         hBox.setAlignment(Pos.BOTTOM_CENTER);
-        hBox.setStyle(" -fx-padding: 40px;");
+        hBox.setStyle(" -fx-padding: 20px;");
 
         BorderPane borderPane = new BorderPane();
 

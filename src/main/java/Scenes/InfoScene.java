@@ -42,6 +42,7 @@ public class InfoScene extends Scene {
         TableColumn<Ship, String> pictureColumn = new TableColumn<>("Ship Picture");
         TableColumn<Ship, String> totalValueColumn = new TableColumn<>("Total Value");
         TableColumn<Ship, String> locationColumn = new TableColumn<>("Ship Location");
+        TableColumn<Ship, String> shipPortColumn = new TableColumn<>("Port");
 
         codeColumn.setMinWidth(100);
         nameColumn.setMinWidth(100);
@@ -49,7 +50,10 @@ public class InfoScene extends Scene {
         pictureColumn.setMinWidth(100);
         totalValueColumn.setMinWidth(100);
         locationColumn.setMinWidth(100);
-        allShips.getColumns().addAll(codeColumn,nameColumn,countryColumn,pictureColumn,totalValueColumn,locationColumn);
+        shipPortColumn.setMinWidth(100);
+        allShips.getColumns().addAll(codeColumn,nameColumn,countryColumn,pictureColumn,totalValueColumn,locationColumn,shipPortColumn);
+        allShips.setMaxHeight(200);
+        allShips.setPlaceholder(new Label("No ships added yet"));
 
         codeColumn.setCellValueFactory(new PropertyValueFactory<>("shipCode"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("shipName"));
@@ -57,24 +61,33 @@ public class InfoScene extends Scene {
         pictureColumn.setCellValueFactory(new PropertyValueFactory<>("shipPicture"));
         totalValueColumn.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
         locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
-        allShips.setPlaceholder(new Label("No ships added yet"));
+        shipPortColumn.setCellValueFactory(new PropertyValueFactory<>("port"));
 
 
         TableColumn<Container, String> containerColumn = new TableColumn<>("Container Code");
         TableColumn<Container, String> containerSize = new TableColumn<>("Container Size");
         TableColumn<Container, String> containerLocation = new TableColumn<>("Container Port Location");
+        TableColumn<Container, String> containerShip = new TableColumn<>("Container Port Location");
+        TableColumn<Container, String> containerPort = new TableColumn<>("Container Port Location");
 
 
-        containerColumn.setMinWidth(200);
-        containerSize.setMinWidth(200);
-        containerLocation.setMinWidth(200);
-        allContainers.getColumns().addAll(containerColumn,containerSize,containerLocation);
+
+
+        containerColumn.setMinWidth(100);
+        containerSize.setMinWidth(100);
+        containerLocation.setMinWidth(100);
+        containerShip.setMinWidth(100);
+        containerPort.setMinWidth(100);
+        allContainers.getColumns().addAll(containerColumn,containerSize,containerLocation,containerShip,containerPort);
+        allContainers.setMaxHeight(200);
 
 
 
         containerColumn.setCellValueFactory(new PropertyValueFactory<>("contCode"));
         containerSize.setCellValueFactory(new PropertyValueFactory<>("contSize"));
         containerLocation.setCellValueFactory(new PropertyValueFactory<>("location"));
+        containerShip.setCellValueFactory(new PropertyValueFactory<>("ship"));
+        containerPort.setCellValueFactory(new PropertyValueFactory<>("port"));
 
         TableColumn<Pallet, String> descriptionColumn = new TableColumn<>("Pallet Description");
         TableColumn<Pallet, String> quantityColumn = new TableColumn<>("Quantity of Items");
@@ -82,6 +95,10 @@ public class InfoScene extends Scene {
         TableColumn<Pallet, String> weightColumn = new TableColumn<>("Pallet Value");
         TableColumn<Pallet, String> volumeColumn = new TableColumn<>("Pallet Volume");
         TableColumn<Pallet, String> palletLocationColumn = new TableColumn<>("Pallet Location");
+        TableColumn<Pallet, String> palletContainerColumn = new TableColumn<>("Container");
+        TableColumn<Pallet, String> palletShipColumn = new TableColumn<>("Ship");
+        TableColumn<Pallet, String> palletPortColumn = new TableColumn<>("Port");
+
 
 
         descriptionColumn.setMinWidth(300);
@@ -89,7 +106,12 @@ public class InfoScene extends Scene {
         valueColumn.setMinWidth(100);
         weightColumn.setMinWidth(100);
         volumeColumn.setMinWidth(100);
-        allPallets.getColumns().addAll(descriptionColumn,quantityColumn,valueColumn,weightColumn,volumeColumn,palletLocationColumn);
+        palletLocationColumn.setMinWidth(100);
+        palletContainerColumn.setMinWidth(100);
+        palletShipColumn.setMinWidth(100);
+        palletPortColumn.setMinWidth(100);
+        allPallets.getColumns().addAll(descriptionColumn,quantityColumn,valueColumn,weightColumn,volumeColumn,palletLocationColumn,palletContainerColumn,palletShipColumn,palletPortColumn);
+        allPallets.setMaxHeight(200);
 
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
@@ -97,6 +119,9 @@ public class InfoScene extends Scene {
         weightColumn.setCellValueFactory(new PropertyValueFactory<>("weight"));
         volumeColumn.setCellValueFactory(new PropertyValueFactory<>("volume"));
         palletLocationColumn.setCellValueFactory(new PropertyValueFactory<>("palletLocation"));
+        palletContainerColumn.setCellValueFactory(new PropertyValueFactory<>("container"));
+        palletShipColumn.setCellValueFactory(new PropertyValueFactory<>("ship"));
+        palletPortColumn.setCellValueFactory(new PropertyValueFactory<>("port"));
 
         allPallets.setPlaceholder(new Label("No Pallets Added Yet"));
         allContainers.setPlaceholder(new Label("No Containers Added Yet"));
@@ -195,17 +220,17 @@ public class InfoScene extends Scene {
         button.setFont(new Font("Arial", 30));
         button.setOnAction(event -> mainScene.switchScene(portScene));
 
-        VBox vBox = new VBox(10);
-        VBox vBox1 = new VBox(10);
-        VBox vBox3 = new VBox(10);
+        VBox vBox = new VBox(3);
+        VBox vBox1 = new VBox(3);
+        VBox vBox3 = new VBox(3);
         vBox.getChildren().addAll(allPallets,unselectPallet,removePalletLabel);
         vBox1.getChildren().addAll(allContainers,unselectContainer,selectedCont);
         vBox3.getChildren().addAll(allShips,unselectShip,selectedShip);
-        HBox hBox = new HBox(10);
-        hBox.getChildren().addAll(vBox,vBox1,vBox3);
-        VBox vBox2 = new VBox(10);
+        VBox vBox4 = new VBox(3);
+        vBox4.getChildren().addAll(vBox,vBox1,vBox3);
+        VBox vBox2 = new VBox(3);
         vBox2.setAlignment(Pos.CENTER);
-        vBox2.getChildren().addAll(hBox,totalValue,button);
+        vBox2.getChildren().addAll(vBox4,totalValue,button);
         root.getChildren().addAll(vBox2);
     }
 
@@ -214,6 +239,7 @@ public class InfoScene extends Scene {
             Platform.runLater(() -> {
                 allPallets.getItems().clear();
                 allContainers.getItems().clear();
+                allShips.getItems().clear();
                 totalValue.setText("The Total Value of all Pallets is: " + this.api.getTotalValue());
                 Node<Port> portNode = API.list.head;
                 while (portNode != null) {
@@ -229,7 +255,6 @@ public class InfoScene extends Scene {
                             Node<Pallet> palletNode = containerNode.data.pallets.head;
                             while (palletNode!=null){
                                 Pallet currentPallet = palletNode.data;
-
                                 allPallets.getItems().add(currentPallet);
                                 palletNode = palletNode.next;
                             }
@@ -254,6 +279,7 @@ public class InfoScene extends Scene {
                 Node<Ship> shipNode = API.shipsAtSea.head;
                 while (shipNode != null) {
                     Ship currentShip = shipNode.data;
+                    allShips.getItems().add(currentShip);
                     Node<Container> containerNode = currentShip.containers.head;
                     while (containerNode != null) {
                         Container currentContainer = containerNode.data;

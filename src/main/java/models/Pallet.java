@@ -13,6 +13,8 @@ public class Pallet implements Serializable {
     private double totalValue;
     private Container container;
     public String palletLocation;
+    public Ship ship;
+    public Port port;
     public Pallet(String description,int quantity,double value,double weight,double volume,Container container){
         setDescription(description);
         setQuantity(quantity);
@@ -22,6 +24,8 @@ public class Pallet implements Serializable {
         setContainer(container);
         setTotalValue();
         setPalletLocation(container);
+        setShip();
+        setPort();
     }
 
     public void setDescription(String description){
@@ -87,14 +91,24 @@ public class Pallet implements Serializable {
     public Container getContainer(){
         return container;
     }
-
+    public void setShip(){
+        this.ship=container.getShip();
+    }
+    public Ship getShip(){
+        return ship;
+    }
+    public void setPort(){
+        this.port=container.getPort();
+    }
+    public Port getPort(){
+        return port;
+    }
     public double getTotalValue(){
         return totalValue;
     }
     public void setTotalValue(){
         this.totalValue=quantity*value;
     }
-
     @Override
     public String toString(){
         return "Pallet{Description: "+ description+", Quantity: " +quantity +", Value: "+ value + ", Volume: "+ volume + ", Weight: "+ weight + "}";

@@ -16,11 +16,12 @@ public class Container implements Serializable{
     private Port port;
     private Ship ship;
     private String location;
-    public Container(int contSize, List<Pallet> pallets,Port port){
+    public Container(int contSize, List<Pallet> pallets,Port port,Ship ship){
         setContCode();
         setContSize(contSize);
         setPallets(pallets);
         setPort(port);
+        setShip(ship);
         setLocation(port);
         setTotalValue();
     }
