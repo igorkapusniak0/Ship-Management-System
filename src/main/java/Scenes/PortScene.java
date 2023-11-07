@@ -258,8 +258,7 @@ public class PortScene extends Scene {
         Button reset = new Button("Reset Facility");
         reset.setOnAction(event -> {
         api.resetFacility();
-        api.resetFacility2();
-        API.clear("data.ser ");
+        API.clear("data.ser");
         });
 
         Button smartAddButton = new Button("Smart Add");

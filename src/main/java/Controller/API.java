@@ -61,7 +61,7 @@ public class API {
         }
         return null;
     }
-    public String getPortAtIndex(int index){
+    /*public String getPortAtIndex(int index){
         Node<Port> current = list.head;
         String string = "";
         int i = 0;
@@ -73,9 +73,9 @@ public class API {
             return null;
         }
         return current.data.portName;
-    }
+    }*/
 
-    public String listAllPorts() {
+    /*public String listAllPorts() {
         Node<Port> current = list.head;
         StringBuilder string = new StringBuilder();
 
@@ -90,9 +90,9 @@ public class API {
         } else {
             return "No ports found.";
         }
-    }
+    }*/
 
-    public String listAllContainers() {
+    /*public String listAllContainers() {
         Node<Container> current = list.head.data.ships.head.data.containers.head;
         StringBuilder string = new StringBuilder();
 
@@ -107,8 +107,8 @@ public class API {
         } else {
             return "No containers found.";
         }
-    }
-    public Port searchPort(String port){
+    }*/
+   /* public Port searchPort(String port){
         Node<Port> current = list.head;
         while (current!=null){
             if(current.data.toString().contains(port)){
@@ -116,7 +116,7 @@ public class API {
             }
             current= current.next;
         }return null;
-    }
+    }*/
 
     public void moveShip(Port source, Port destination,Ship ship){
         Node<Container> current= ship.containers.head;
@@ -199,7 +199,7 @@ public class API {
         destination.addContainer(container);
         source.removeContainer(container);
     }
-    public String getContainerLocation(Container container){
+   /* public String getContainerLocation(Container container){
         if(container!=null){
             System.out.println(container.getPort());
             if (container.getPort() != null){
@@ -212,7 +212,7 @@ public class API {
         }else {
             return "Invalid Container";
         }
-    }
+    }*/
     public double getTotalValue(){
         Node<Port> currentPort = list.head;
         Node<Ship> currentShip = shipsAtSea.head;
@@ -298,7 +298,7 @@ public class API {
         }
     }
 
-    public void resetFacility2(){
+    /*public void resetFacility2(){
         Node<Port> current = list.head;
         while (current!=null){
             Port port = current.data;
@@ -356,7 +356,7 @@ public class API {
             ship=null;
             currentShip=currentShip.next;
         }
-    }
+    }*/
 
 
     public <T> void updateListView(String filter, TableView tableView, Node<T> head, Consumer setTotalValue) {
