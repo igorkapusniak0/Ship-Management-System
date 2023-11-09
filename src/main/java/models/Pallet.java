@@ -12,6 +12,9 @@ public class Pallet implements Serializable {
     private double volume =0;
     private double totalValue;
     private Container container;
+    private String portCode;
+    private String shipCode;
+    private String containerCode;
     public String palletLocation;
     public Ship ship;
     public Port port;
@@ -26,6 +29,8 @@ public class Pallet implements Serializable {
         setPalletLocation(container);
         setShip();
         setPort();
+        setShipCode(container.getShip());
+        setPortCode(container.getPort());
     }
 
     public void setDescription(String description){
@@ -87,18 +92,47 @@ public class Pallet implements Serializable {
     public void setContainer(Container container){
         this.container = container;
         setPalletLocation(container);
+        setContainerCode(container);
+    }
+    public void setPortCode(Port port){
+        if (port!=null){
+            this.portCode=port.getPortCode();
+        }else{
+            this.portCode="";
+        }
+    }
+    public String getPortCode(){
+        return portCode;
+    }
+    public void setShipCode(Ship ship){
+        if (ship!=null){
+            this.shipCode=ship.getShipCode();
+        }else{
+            this.shipCode="";
+        }
+    }
+    public String getShipCode(){
+        return shipCode;
+    }
+    public void setContainerCode(Container container){
+        this.containerCode=container.getContCode();
+    }
+    public String getContainerCode(){
+        return containerCode;
     }
     public Container getContainer(){
         return container;
     }
     public void setShip(){
         this.ship=container.getShip();
+        setShipCode(container.getShip());
     }
     public Ship getShip(){
         return ship;
     }
     public void setPort(){
         this.port=container.getPort();
+        setPortCode(container.getPort());
     }
     public Port getPort(){
         return port;
@@ -111,7 +145,7 @@ public class Pallet implements Serializable {
     }
     @Override
     public String toString(){
-        return "Pallet{Description: "+ description+", Quantity: " +quantity +", Value: "+ value + ", Volume: "+ volume + ", Weight: "+ weight + "}";
+        return "Pallet{Description: "+ description+", Quantity: " +quantity +", Value: "+ value + ", Volume: "+ volume + ", Weight: "+ weight + "Container: "+containerCode+"Ship: "+ shipCode+ "Port: "+portCode+"}";
     }
 
 

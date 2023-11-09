@@ -15,6 +15,8 @@ public class Container implements Serializable{
     private double totalValue;
     private Port port;
     private Ship ship;
+    private String shipCode;
+    private String portCode;
     private String location;
     public Container(int contSize, List<Pallet> pallets,Port port,Ship ship){
         setContCode();
@@ -24,6 +26,8 @@ public class Container implements Serializable{
         setShip(ship);
         setLocation(port);
         setTotalValue();
+        setShipCode(ship);
+        setPortCode(port);
     }
     public void setContCode(){
         this.contCode=API.uniqueContainerCode(Utilities.uniqueCodeGenerator());
@@ -70,12 +74,35 @@ public class Container implements Serializable{
     public void setPort(Port port){
         this.port = port;
         setLocation(port);
+        setPortCode(port);
+    }
+    public void setShipCode(Ship ship){
+        if (ship!=null){
+            this.shipCode=ship.getShipCode();
+        }else{
+            this.shipCode="";
+        }
+    }
+    public String getShipCode(){
+        return shipCode;
+    }
+    public void setPortCode(Port port){
+        if (port!=null){
+            this.portCode=port.getPortCode();
+        }
+        else {
+            this.portCode="";
+        }
+    }
+    public String getPortCode(){
+        return portCode;
     }
     public Ship getShip(){
         return ship;
     }
     public void setShip(Ship ship){
         this.ship=ship;
+        setShipCode(ship);
     }
     public int getTotalPalletsVolume(){
         Node<Pallet> current = pallets.head;
@@ -106,7 +133,7 @@ public class Container implements Serializable{
 
     @Override
     public String toString() {
-        return "Container{Code: "+  contCode + ", " + "Size: "+contSize+ "}";
+        return "Container{Code: "+  contCode + ", " + "Size: "+contSize+ "Port: "+portCode+"Ship:"+shipCode+"}";
     }
 
 }

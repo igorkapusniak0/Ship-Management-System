@@ -50,7 +50,7 @@ public class InfoScene extends Scene {
         pictureColumn.setMinWidth(100);
         totalValueColumn.setMinWidth(100);
         locationColumn.setMinWidth(100);
-        shipPortColumn.setMinWidth(100);
+        shipPortColumn.setMinWidth(450);
         allShips.getColumns().addAll(codeColumn,nameColumn,countryColumn,pictureColumn,totalValueColumn,locationColumn,shipPortColumn);
         allShips.setMaxHeight(200);
         allShips.setPlaceholder(new Label("No ships added yet"));
@@ -61,14 +61,14 @@ public class InfoScene extends Scene {
         pictureColumn.setCellValueFactory(new PropertyValueFactory<>("shipPicture"));
         totalValueColumn.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
         locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
-        shipPortColumn.setCellValueFactory(new PropertyValueFactory<>("port"));
+        shipPortColumn.setCellValueFactory(new PropertyValueFactory<>("portCode"));
 
 
         TableColumn<Container, String> containerColumn = new TableColumn<>("Container Code");
         TableColumn<Container, String> containerSize = new TableColumn<>("Container Size");
         TableColumn<Container, String> containerLocation = new TableColumn<>("Container Port Location");
-        TableColumn<Container, String> containerShip = new TableColumn<>("Container Port Location");
-        TableColumn<Container, String> containerPort = new TableColumn<>("Container Port Location");
+        TableColumn<Container, String> containerShip = new TableColumn<>("Ship Code");
+        TableColumn<Container, String> containerPort = new TableColumn<>("Port Code");
 
 
 
@@ -76,8 +76,8 @@ public class InfoScene extends Scene {
         containerColumn.setMinWidth(100);
         containerSize.setMinWidth(100);
         containerLocation.setMinWidth(100);
-        containerShip.setMinWidth(100);
-        containerPort.setMinWidth(100);
+        containerShip.setMinWidth(500);
+        containerPort.setMinWidth(450);
         allContainers.getColumns().addAll(containerColumn,containerSize,containerLocation,containerShip,containerPort);
         allContainers.setMaxHeight(200);
 
@@ -86,8 +86,8 @@ public class InfoScene extends Scene {
         containerColumn.setCellValueFactory(new PropertyValueFactory<>("contCode"));
         containerSize.setCellValueFactory(new PropertyValueFactory<>("contSize"));
         containerLocation.setCellValueFactory(new PropertyValueFactory<>("location"));
-        containerShip.setCellValueFactory(new PropertyValueFactory<>("ship"));
-        containerPort.setCellValueFactory(new PropertyValueFactory<>("port"));
+        containerShip.setCellValueFactory(new PropertyValueFactory<>("shipCode"));
+        containerPort.setCellValueFactory(new PropertyValueFactory<>("portCode"));
 
         TableColumn<Pallet, String> descriptionColumn = new TableColumn<>("Pallet Description");
         TableColumn<Pallet, String> quantityColumn = new TableColumn<>("Quantity of Items");
@@ -107,9 +107,9 @@ public class InfoScene extends Scene {
         weightColumn.setMinWidth(100);
         volumeColumn.setMinWidth(100);
         palletLocationColumn.setMinWidth(100);
-        palletContainerColumn.setMinWidth(100);
-        palletShipColumn.setMinWidth(100);
-        palletPortColumn.setMinWidth(100);
+        palletContainerColumn.setMinWidth(300);
+        palletShipColumn.setMinWidth(500);
+        palletPortColumn.setMinWidth(450);
         allPallets.getColumns().addAll(descriptionColumn,quantityColumn,valueColumn,weightColumn,volumeColumn,palletLocationColumn,palletContainerColumn,palletShipColumn,palletPortColumn);
         allPallets.setMaxHeight(200);
 
@@ -119,18 +119,24 @@ public class InfoScene extends Scene {
         weightColumn.setCellValueFactory(new PropertyValueFactory<>("weight"));
         volumeColumn.setCellValueFactory(new PropertyValueFactory<>("volume"));
         palletLocationColumn.setCellValueFactory(new PropertyValueFactory<>("palletLocation"));
-        palletContainerColumn.setCellValueFactory(new PropertyValueFactory<>("container"));
-        palletShipColumn.setCellValueFactory(new PropertyValueFactory<>("ship"));
-        palletPortColumn.setCellValueFactory(new PropertyValueFactory<>("port"));
+        palletContainerColumn.setCellValueFactory(new PropertyValueFactory<>("containerCode"));
+        palletShipColumn.setCellValueFactory(new PropertyValueFactory<>("shipCode"));
+        palletPortColumn.setCellValueFactory(new PropertyValueFactory<>("portCode"));
 
         allPallets.setPlaceholder(new Label("No Pallets Added Yet"));
         allContainers.setPlaceholder(new Label("No Containers Added Yet"));
 
         Label removePalletLabel = new Label("");
 
+        TextField searchShip = new TextField();
+        searchShip.setPromptText("Enter Ship:");
+        TextField searchContainer = new TextField();
+        searchContainer.setPromptText("Enter Container:");
+        TextField searchPallet = new TextField();
+        searchPallet.setPromptText("Enter Pallet:");
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(this::updatePalletView, 0, 1, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(() -> updatePalletView(searchShip.getText(),searchContainer.getText(),searchPallet.getText()), 0, 1, TimeUnit.SECONDS);
 
         Label selectedCont = new Label("");
 
@@ -223,9 +229,9 @@ public class InfoScene extends Scene {
         VBox vBox = new VBox(3);
         VBox vBox1 = new VBox(3);
         VBox vBox3 = new VBox(3);
-        vBox.getChildren().addAll(allPallets,unselectPallet,removePalletLabel);
-        vBox1.getChildren().addAll(allContainers,unselectContainer,selectedCont);
-        vBox3.getChildren().addAll(allShips,unselectShip,selectedShip);
+        vBox.getChildren().addAll(allPallets,searchPallet,unselectPallet,removePalletLabel);
+        vBox1.getChildren().addAll(allContainers,searchContainer,unselectContainer,selectedCont);
+        vBox3.getChildren().addAll(allShips,searchShip,unselectShip,selectedShip);
         VBox vBox4 = new VBox(3);
         vBox4.getChildren().addAll(vBox,vBox1,vBox3);
         VBox vBox2 = new VBox(3);
@@ -234,7 +240,7 @@ public class InfoScene extends Scene {
         root.getChildren().addAll(vBox2);
     }
 
-    private void updatePalletView() {
+    private void updatePalletView(String shipFilter, String contFilter, String palletFilter) {
         if (api != null) {
             Platform.runLater(() -> {
                 allPallets.getItems().clear();
@@ -247,15 +253,21 @@ public class InfoScene extends Scene {
                     Node<Ship> shipNode = portNode.data.ships.head;
                     while (shipNode!=null){
                         Ship currentShip = shipNode.data;
-                        allShips.getItems().add(currentShip);
+                        if (currentShip.toString().contains(shipFilter)){
+                            allShips.getItems().add(currentShip);
+                        }
                         Node<Container> containerNode = shipNode.data.containers.head;
                         while (containerNode!=null){
                             Container currentContainer = containerNode.data;
-                            allContainers.getItems().addAll(currentContainer);
+                            if (currentContainer.toString().contains(contFilter)){
+                                allContainers.getItems().addAll(currentContainer);
+                            }
                             Node<Pallet> palletNode = containerNode.data.pallets.head;
                             while (palletNode!=null){
                                 Pallet currentPallet = palletNode.data;
-                                allPallets.getItems().add(currentPallet);
+                                if (currentPallet.toString().contains(palletFilter)){
+                                    allPallets.getItems().add(currentPallet);
+                                }
                                 palletNode = palletNode.next;
                             }
                             containerNode = containerNode.next;
@@ -265,11 +277,15 @@ public class InfoScene extends Scene {
                     Node<Container> containerNode = currentPort.containersInPort.head;
                     while (containerNode != null) {
                         Container currentContainer = containerNode.data;
-                        allContainers.getItems().addAll(currentContainer);
+                        if (currentContainer.toString().contains(contFilter)){
+                            allContainers.getItems().addAll(currentContainer);
+                        }
                         Node<Pallet> palletNode = currentContainer.pallets.head;
                         while (palletNode != null) {
                             Pallet currentPallet = palletNode.data;
-                            allPallets.getItems().add(currentPallet);
+                            if (currentPallet.toString().contains(palletFilter)){
+                                allPallets.getItems().add(currentPallet);
+                            }
                             palletNode = palletNode.next;
                         }
                         containerNode = containerNode.next;
@@ -279,15 +295,21 @@ public class InfoScene extends Scene {
                 Node<Ship> shipNode = API.shipsAtSea.head;
                 while (shipNode != null) {
                     Ship currentShip = shipNode.data;
-                    allShips.getItems().add(currentShip);
+                    if (currentShip.toString().contains(shipFilter)){
+                        allShips.getItems().add(currentShip);
+                    }
                     Node<Container> containerNode = currentShip.containers.head;
                     while (containerNode != null) {
                         Container currentContainer = containerNode.data;
-                        allContainers.getItems().addAll(currentContainer);
+                        if (currentContainer.toString().contains(contFilter)){
+                            allContainers.getItems().addAll(currentContainer);
+                        }
                         Node<Pallet> palletNode = currentContainer.pallets.head;
                         while (palletNode != null) {
                             Pallet currentPallet = palletNode.data;
-                            allPallets.getItems().add(currentPallet);
+                            if (currentPallet.toString().contains(palletFilter)){
+                                allPallets.getItems().add(currentPallet);
+                            }
                             palletNode = palletNode.next;
                         }
                         containerNode = containerNode.next;

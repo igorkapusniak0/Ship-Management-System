@@ -15,6 +15,7 @@ public class Ship implements Serializable {
     private double totalValue;
     private String location;
     public Port port;
+    public String portCode;
     public List<Container> containers = new List<>();
 
     public Ship(String shipName, String shipCountry,String shipPicture,Port port){
@@ -25,6 +26,7 @@ public class Ship implements Serializable {
         setTotalValue();
         setLocation(port);
         setPort(port);
+        setPortCode(port);
     }
 
     public void setShipName(String shipName){
@@ -55,6 +57,13 @@ public class Ship implements Serializable {
     }
     public void setPort(Port port){
         this.port=port;
+        setPortCode(port);
+    }
+    public void setPortCode(Port port){
+        this.portCode =port.getPortCode();
+    }
+    public String getPortCode(){
+        return portCode;
     }
     public String getShipCountry(){
         return shipCountry;
@@ -97,6 +106,6 @@ public class Ship implements Serializable {
     }
     @Override
     public String toString() {
-        return "Ship{Name " + shipName + ", Code: " + shipCode + ", Country: " + shipCountry+", Picture: "+shipPicture+"}";
+        return "Ship{Name " + shipName + ", Code: " + shipCode + ", Country: " + shipCountry+", Picture: "+shipPicture+"Port:"+portCode+"}";
     }
 }
