@@ -36,8 +36,10 @@ public class ContainerInPortScene extends Scene {
         Label displayName= new Label();
         displayName.setFont(new Font("Arial", 50));
 
-        if(port !=null) {
+        if(container !=null) {
             displayName.setText("Container: "+container.getContCode());
+        }else{
+            displayName.setText("port is null");
         }
 
         Label palletDescription = new Label("Description");
@@ -222,6 +224,8 @@ public class ContainerInPortScene extends Scene {
 
         Button button = new Button("Return");
         button.setFont(new Font("Arial", 30));
+        Pane root2 = new Pane();
+        portScene.individualPort = new IndividualPort(root2,mainScene,portScene,api,container.getPort());
         button.setOnAction(event -> mainScene.switchScene(portScene.individualPort));
 
         VBox vBox2 = new VBox();
